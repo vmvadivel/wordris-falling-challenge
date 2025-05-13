@@ -13,16 +13,16 @@ const Index = () => {
   return (
     <div className="min-h-screen h-screen bg-gray-950 flex flex-col items-center py-6 px-4 overflow-hidden">
       {/* Title Section */}
-      <div className="text-center mb-4">
+      <div className="text-center mb-8">
         <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">Wordris</h1>
         <h2 className="text-sm md:text-lg text-gray-300">A falling letter challenge for your vocabulary!</h2>
       </div>
 
       {/* Game Container */}
       <div className="w-full max-w-6xl flex-1 flex flex-col lg:flex-row gap-4 justify-center overflow-hidden">
-        {/* Game Grid - Responsive sizing */}
-        <div className="w-full lg:max-w-[600px] flex items-center justify-center">
-          <div className="grid grid-cols-8 gap-1 aspect-square w-full max-h-full">
+        {/* Game Grid - Enhanced size and positioning */}
+        <div className="w-full lg:max-w-[650px] flex items-center justify-center">
+          <div className="grid grid-cols-8 gap-1 aspect-square w-full max-h-full min-h-[350px] md:min-h-[450px]">
             {Array(64).fill(0).map((_, index) => (
               <div 
                 key={index} 
