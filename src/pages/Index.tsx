@@ -3,12 +3,11 @@ import React from "react";
 import { 
   Card, 
   CardContent, 
-  CardFooter, 
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, RotateCw, Shuffle, X } from "lucide-react";
+import { Check, RotateCw, Shuffle, X, Zap } from "lucide-react";
 
 const Index = () => {
   return (
@@ -33,12 +32,12 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Control Panel */}
-        <Card className="w-full lg:w-80 bg-gray-900 border-gray-800 flex flex-col">
+        {/* Control Panel - Adjusted width */}
+        <Card className="w-full lg:w-72 bg-gray-900 border-gray-800 flex flex-col">
           <CardHeader>
             <CardTitle className="text-white">Game Controls</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6 flex-1">
+          <CardContent className="space-y-4 flex-1">
             {/* Current Word with Clear and Submit buttons */}
             <div className="space-y-2">
               <p className="text-sm text-gray-400">Current Word</p>
@@ -66,19 +65,20 @@ const Index = () => {
                 <p className="text-xl font-semibold text-white">1</p>
               </div>
             </div>
+
+            {/* Action buttons moved up and horizontally aligned */}
+            <div className="flex justify-center gap-3 pt-1">
+              <Button variant="outline" size="icon" className="h-12 w-12 bg-gray-800 hover:bg-purple-900 border-gray-700 shadow-md">
+                <Shuffle className="h-5 w-5 text-purple-400" />
+              </Button>
+              <Button variant="outline" size="icon" className="h-12 w-12 bg-gray-800 hover:bg-blue-900 border-gray-700 shadow-md">
+                <RotateCw className="h-5 w-5 text-blue-400" />
+              </Button>
+              <Button variant="outline" size="icon" className="h-12 w-12 bg-gray-800 hover:bg-orange-900 border-gray-700 shadow-md">
+                <Zap className="h-5 w-5 text-orange-400" />
+              </Button>
+            </div>
           </CardContent>
-          <CardFooter className="flex justify-center gap-4 pt-2">
-            {/* Enhanced action buttons */}
-            <Button variant="outline" size="icon" className="h-12 w-12 bg-gray-800 hover:bg-purple-900 border-gray-700 shadow-md">
-              <Shuffle className="h-5 w-5 text-purple-400" />
-            </Button>
-            <Button variant="outline" size="icon" className="h-12 w-12 bg-gray-800 hover:bg-blue-900 border-gray-700 shadow-md">
-              <RotateCw className="h-5 w-5 text-blue-400" />
-            </Button>
-            <Button variant="outline" size="icon" className="h-12 w-12 bg-gray-800 hover:bg-orange-900 border-gray-700 shadow-md">
-              <span className="text-lg text-orange-400">⚡</span>
-            </Button>
-          </CardFooter>
         </Card>
       </div>
     </div>
