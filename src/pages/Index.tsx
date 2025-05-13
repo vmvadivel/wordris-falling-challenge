@@ -32,23 +32,23 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Control Panel - Adjusted width */}
+        {/* Control Panel - Adjusted height to match grid */}
         <Card className="w-full lg:w-72 bg-gray-900 border-gray-800 flex flex-col">
-          <CardHeader>
-            <CardTitle className="text-white">Game Controls</CardTitle>
+          <CardHeader className="py-3">
+            <CardTitle className="text-white text-xl">Game Controls</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 flex-1">
+          <CardContent className="space-y-3 flex-1 py-2">
             {/* Current Word with Clear and Submit buttons */}
-            <div className="space-y-2">
+            <div className="space-y-1">
               <p className="text-sm text-gray-400">Current Word</p>
               <div className="flex gap-2 items-center">
-                <div className="p-3 bg-gray-800 rounded-md text-white font-medium text-center flex-1">
+                <div className="p-2 bg-gray-800 rounded-md text-white font-medium text-center flex-1">
                   -
                 </div>
-                <Button variant="outline" size="icon" className="h-10 w-10 bg-gray-800 hover:bg-gray-700 border-gray-700">
+                <Button variant="outline" size="icon" className="h-8 w-8 bg-gray-800 hover:bg-gray-700 border-gray-700">
                   <X className="h-4 w-4 text-white" />
                 </Button>
-                <Button variant="outline" size="icon" className="h-10 w-10 bg-gray-800 hover:bg-gray-700 border-gray-700">
+                <Button variant="outline" size="icon" className="h-8 w-8 bg-gray-800 hover:bg-gray-700 border-gray-700">
                   <Check className="h-4 w-4 text-white" />
                 </Button>
               </div>
@@ -56,25 +56,25 @@ const Index = () => {
             
             {/* Score and Level in individual rounded boxes */}
             <div className="flex justify-between gap-4">
-              <div className="bg-gray-800 rounded-lg p-3 flex-1 flex flex-col items-center">
-                <p className="text-sm text-gray-400 mb-1">Score</p>
+              <div className="bg-gray-800 rounded-lg p-2 flex-1 flex flex-col items-center">
+                <p className="text-xs text-gray-400">Score</p>
                 <p className="text-xl font-semibold text-white">0</p>
               </div>
-              <div className="bg-gray-800 rounded-lg p-3 flex-1 flex flex-col items-center">
-                <p className="text-sm text-gray-400 mb-1">Level</p>
+              <div className="bg-gray-800 rounded-lg p-2 flex-1 flex flex-col items-center">
+                <p className="text-xs text-gray-400">Level</p>
                 <p className="text-xl font-semibold text-white">1</p>
               </div>
             </div>
 
             {/* Action buttons moved up and horizontally aligned */}
-            <div className="flex justify-center gap-3 pt-1">
-              <Button variant="outline" size="icon" className="h-12 w-12 bg-gray-800 hover:bg-purple-900 border-gray-700 shadow-md">
+            <div className="flex justify-center gap-3">
+              <Button variant="outline" size="icon" className="h-10 w-10 bg-gray-800 hover:bg-purple-900 border-gray-700 shadow-md">
                 <Shuffle className="h-5 w-5 text-purple-400" />
               </Button>
-              <Button variant="outline" size="icon" className="h-12 w-12 bg-gray-800 hover:bg-blue-900 border-gray-700 shadow-md">
+              <Button variant="outline" size="icon" className="h-10 w-10 bg-gray-800 hover:bg-blue-900 border-gray-700 shadow-md">
                 <RotateCw className="h-5 w-5 text-blue-400" />
               </Button>
-              <Button variant="outline" size="icon" className="h-12 w-12 bg-gray-800 hover:bg-orange-900 border-gray-700 shadow-md">
+              <Button variant="outline" size="icon" className="h-10 w-10 bg-gray-800 hover:bg-orange-900 border-gray-700 shadow-md">
                 <Zap className="h-5 w-5 text-orange-400" />
               </Button>
             </div>
