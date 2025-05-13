@@ -11,18 +11,18 @@ import { Check, RotateCw, Shuffle, X, Zap } from "lucide-react";
 
 const Index = () => {
   return (
-    <div className="min-h-screen h-screen bg-gray-950 flex flex-col items-center py-6 px-4 overflow-hidden">
-      {/* Title Section */}
-      <div className="text-center mb-8">
+    <div className="min-h-screen h-screen bg-gray-950 flex flex-col items-center p-4 md:py-6 overflow-hidden">
+      {/* Title Section - Responsive padding and margin */}
+      <div className="text-center mb-4 md:mb-8 w-full max-w-6xl">
         <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">Wordris</h1>
         <h2 className="text-sm md:text-lg text-gray-300">A falling letter challenge for your vocabulary!</h2>
       </div>
 
-      {/* Game Container */}
-      <div className="w-full max-w-6xl flex-1 flex flex-col lg:flex-row gap-4 justify-center overflow-hidden">
-        {/* Game Grid - Enhanced size and positioning */}
-        <div className="w-full lg:max-w-[650px] flex items-center justify-center">
-          <div className="grid grid-cols-8 gap-1 aspect-square w-full max-h-full min-h-[350px] md:min-h-[450px]">
+      {/* Game Container - Full height with flex grow */}
+      <div className="w-full max-w-6xl flex-1 flex flex-col lg:flex-row gap-4 justify-center items-center">
+        {/* Game Grid - Fluid responsive sizing with min/max constraints */}
+        <div className="w-full lg:w-3/4 xl:w-auto flex items-center justify-center">
+          <div className="grid grid-cols-8 gap-1 aspect-square w-full max-w-[min(calc(100vh_-_12rem),650px)] min-h-[min(350px,70vh)] md:min-h-[min(450px,75vh)]">
             {Array(64).fill(0).map((_, index) => (
               <div 
                 key={index} 
@@ -32,12 +32,12 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Control Panel - Adjusted height to match grid */}
-        <Card className="w-full lg:w-72 bg-gray-900 border-gray-800 flex flex-col">
-          <CardHeader className="py-3">
+        {/* Control Panel - Adaptive height and width */}
+        <Card className="w-full lg:w-1/4 xl:w-72 bg-gray-900 border-gray-800 flex flex-col self-stretch lg:self-center max-h-[min(450px,70vh)] lg:max-h-[min(calc(100vh_-_12rem),650px)]">
+          <CardHeader className="py-2 md:py-3">
             <CardTitle className="text-white text-xl">Game Controls</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 flex-1 py-2">
+          <CardContent className="space-y-3 flex-1 py-2 flex flex-col justify-between">
             {/* Current Word with Clear and Submit buttons */}
             <div className="space-y-1">
               <p className="text-sm text-gray-400">Current Word</p>
@@ -67,15 +67,15 @@ const Index = () => {
             </div>
 
             {/* Action buttons moved up and horizontally aligned */}
-            <div className="flex justify-center gap-3">
-              <Button variant="outline" size="icon" className="h-10 w-10 bg-gray-800 hover:bg-purple-900 border-gray-700 shadow-md">
-                <Shuffle className="h-5 w-5 text-purple-400" />
+            <div className="flex justify-center gap-3 pb-1 md:pb-2">
+              <Button variant="outline" size="icon" className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-purple-900 border-gray-700 shadow-md">
+                <Shuffle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
               </Button>
-              <Button variant="outline" size="icon" className="h-10 w-10 bg-gray-800 hover:bg-blue-900 border-gray-700 shadow-md">
-                <RotateCw className="h-5 w-5 text-blue-400" />
+              <Button variant="outline" size="icon" className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-blue-900 border-gray-700 shadow-md">
+                <RotateCw className="h-4 w-4 md:h-5 md:w-5 text-blue-400" />
               </Button>
-              <Button variant="outline" size="icon" className="h-10 w-10 bg-gray-800 hover:bg-orange-900 border-gray-700 shadow-md">
-                <Zap className="h-5 w-5 text-orange-400" />
+              <Button variant="outline" size="icon" className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-orange-900 border-gray-700 shadow-md">
+                <Zap className="h-4 w-4 md:h-5 md:w-5 text-orange-400" />
               </Button>
             </div>
           </CardContent>
