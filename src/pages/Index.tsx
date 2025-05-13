@@ -9,6 +9,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Check, RotateCw, Shuffle, X } from "lucide-react";
 
 const Index = () => {
   return (
@@ -20,30 +21,40 @@ const Index = () => {
       </div>
 
       {/* Game Container */}
-      <div className="w-full max-w-5xl flex flex-col lg:flex-row gap-6 justify-center">
-        {/* Game Grid */}
-        <div className="w-full lg:w-auto">
-          <div className="grid grid-cols-8 gap-1 aspect-square">
+      <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-6 justify-center">
+        {/* Game Grid - Larger cells with responsive sizing */}
+        <div className="w-full lg:max-w-[640px]">
+          <div className="grid grid-cols-8 gap-1 aspect-square w-full">
             {Array(64).fill(0).map((_, index) => (
               <div 
                 key={index} 
-                className="aspect-square bg-gray-800/50 border border-gray-700 rounded flex items-center justify-center shadow-sm"
-                style={{ minWidth: '30px' }}
+                className="aspect-square bg-gray-800/50 border border-gray-700 rounded flex items-center justify-center shadow-sm text-xl font-semibold text-white"
               ></div>
             ))}
           </div>
         </div>
 
         {/* Control Panel */}
-        <Card className="w-full lg:w-64 bg-gray-900 border-gray-800">
+        <Card className="w-full lg:w-80 bg-gray-900 border-gray-800">
           <CardHeader>
             <CardTitle className="text-white">Game Controls</CardTitle>
             <CardDescription className="text-gray-400">Control your game</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Current Word with Clear and Submit buttons */}
             <div className="space-y-2">
               <p className="text-sm text-gray-400">Current Word</p>
-              <div className="p-3 bg-gray-800 rounded-md text-white font-medium text-center">-</div>
+              <div className="flex gap-2 items-center">
+                <div className="p-3 bg-gray-800 rounded-md text-white font-medium text-center flex-1">
+                  -
+                </div>
+                <Button variant="outline" size="icon" className="h-10 w-10">
+                  <X className="h-4 w-4 text-gray-300" />
+                </Button>
+                <Button variant="outline" size="icon" className="h-10 w-10">
+                  <Check className="h-4 w-4 text-gray-300" />
+                </Button>
+              </div>
             </div>
             
             <div className="flex justify-between">
@@ -57,15 +68,16 @@ const Index = () => {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col gap-2">
-            <Button variant="outline" className="w-full">
-              🔀 Shuffle
+          <CardFooter className="flex justify-center gap-3">
+            {/* Icon-only buttons arranged horizontally */}
+            <Button variant="outline" size="icon" className="h-12 w-12">
+              <Shuffle className="h-5 w-5" />
             </Button>
-            <Button variant="outline" className="w-full">
-              🔄 Reset
+            <Button variant="outline" size="icon" className="h-12 w-12">
+              <RotateCw className="h-5 w-5" />
             </Button>
-            <Button variant="outline" className="w-full">
-              ⚡ Boost
+            <Button variant="outline" size="icon" className="h-12 w-12">
+              <span className="text-lg">⚡</span>
             </Button>
           </CardFooter>
         </Card>
