@@ -19,10 +19,10 @@ const Index = () => {
       </div>
 
       {/* Game Container - Full height with flex grow */}
-      <div className="w-full max-w-6xl flex-1 flex flex-col lg:flex-row gap-4 justify-center items-center">
-        {/* Game Grid - Fluid responsive sizing with min/max constraints */}
+      <div className="w-full max-w-6xl flex-1 flex flex-col lg:flex-row gap-4 justify-center items-center pb-4">
+        {/* Game Grid - Fluid responsive sizing with min/max constraints and adjusted height */}
         <div className="w-full lg:w-3/4 xl:w-auto flex items-center justify-center">
-          <div className="grid grid-cols-8 gap-1 aspect-square w-full max-w-[min(calc(100vh_-_12rem),650px)] min-h-[min(350px,70vh)] md:min-h-[min(450px,75vh)]">
+          <div className="grid grid-cols-8 gap-1 aspect-square w-full max-w-[min(calc(100vh_-_14rem),650px)] min-h-[min(350px,65vh)] md:min-h-[min(450px,70vh)]">
             {Array(64).fill(0).map((_, index) => (
               <div 
                 key={index} 
@@ -33,7 +33,7 @@ const Index = () => {
         </div>
 
         {/* Control Panel - Adaptive height and width */}
-        <Card className="w-full lg:w-1/4 xl:w-72 bg-gray-900 border-gray-800 flex flex-col self-stretch lg:self-center max-h-[min(450px,70vh)] lg:max-h-[min(calc(100vh_-_12rem),650px)]">
+        <Card className="w-full lg:w-1/4 xl:w-72 bg-gray-900 border-gray-800 flex flex-col self-stretch lg:self-center max-h-[min(450px,65vh)] lg:max-h-[min(calc(100vh_-_14rem),650px)]">
           <CardHeader className="py-2 md:py-3">
             <CardTitle className="text-white text-xl">Game Controls</CardTitle>
           </CardHeader>
