@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   Card, 
   CardContent, 
@@ -9,7 +9,163 @@ import {
 import { Button } from "@/components/ui/button";
 import { Check, RotateCw, Shuffle, X, Zap } from "lucide-react";
 
+// Types for our grid
+type Cell = string | null;
+type GameGrid = Cell[][];
+
+// Generate a random letter A-Z
+const getRandomLetter = (): string => {
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  return letters[Math.floor(Math.random() * letters.length)];
+};
+
+// Create an empty 8x8 grid
+const createEmptyGrid = (): GameGrid => {
+  return Array(8).fill(null).map(() => Array(8).fill(null));
+};
+
 const Index = () => {
+  // Game state
+  const [grid, setGrid] = useState<GameGrid>(createEmptyGrid());
+  const [currentWord, setCurrentWord] = useState<string>("");
+  const [score, setScore] = useState<number>(0);
+  const [level, setLevel] = useState<number>(1);
+  const [gameActive, setGameActive] = useState<boolean>(true);
+  
+  // Falling letter state
+  const [fallingLetter, setFallingLetter] = useState<{letter: string, col: number, row: number} | null>(null);
+  
+  // Refs for animation control
+  const animationRef = useRef<number | null>(null);
+  const lastDropTime = useRef<number>(0);
+  const dropInterval = useRef<number>(1000); // Starts at 1 second per drop
+  
+  // Game loop with requestAnimationFrame for smooth animation
+  const gameLoop = (timestamp: number) => {
+    if (!gameActive) return;
+    
+    const elapsed = timestamp - lastDropTime.current;
+    
+    // Move letter down at the specified interval
+    if (fallingLetter && elapsed > dropInterval.current) {
+      lastDropTime.current = timestamp;
+      
+      // Check if the letter can fall further
+      const nextRow = fallingLetter.row + 1;
+      if (nextRow < 8 && grid[nextRow][fallingLetter.col] === null) {
+        // Move down one cell
+        setFallingLetter({
+          ...fallingLetter,
+          row: nextRow
+        });
+      } else {
+        // Letter has landed
+        const newGrid = [...grid];
+        newGrid[fallingLetter.row][fallingLetter.col] = fallingLetter.letter;
+        setGrid(newGrid);
+        setFallingLetter(null);
+      }
+    }
+    
+    // Spawn a new letter if none is falling
+    if (!fallingLetter && Math.random() < 0.02) { // Small chance each frame
+      spawnNewLetter();
+    }
+    
+    // Continue the game loop
+    animationRef.current = requestAnimationFrame(gameLoop);
+  };
+  
+  // Spawn a new letter in a random available column
+  const spawnNewLetter = () => {
+    // Find all available columns (top row is empty)
+    const availableCols = [];
+    for (let col = 0; col < 8; col++) {
+      if (grid[0][col] === null) {
+        availableCols.push(col);
+      }
+    }
+    
+    // If there are available columns, spawn a letter
+    if (availableCols.length > 0) {
+      const randomCol = availableCols[Math.floor(Math.random() * availableCols.length)];
+      setFallingLetter({
+        letter: getRandomLetter(),
+        col: randomCol,
+        row: 0
+      });
+    }
+  };
+  
+  // Start/stop game
+  useEffect(() => {
+    if (gameActive) {
+      lastDropTime.current = performance.now();
+      animationRef.current = requestAnimationFrame(gameLoop);
+    } else if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+    
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [gameActive, grid]);
+  
+  // Update drop speed based on level
+  useEffect(() => {
+    dropInterval.current = Math.max(200, 1000 - (level - 1) * 100);
+  }, [level]);
+  
+  // Reset the game
+  const resetGame = () => {
+    setGrid(createEmptyGrid());
+    setCurrentWord("");
+    setScore(0);
+    setLevel(1);
+    setFallingLetter(null);
+    setGameActive(true);
+  };
+  
+  // Clear current word
+  const clearWord = () => {
+    setCurrentWord("");
+  };
+  
+  // Render the combined grid (static letters plus falling letter)
+  const renderGrid = () => {
+    // Create a copy of the grid for rendering
+    const renderGrid = grid.map(row => [...row]);
+    
+    // Add falling letter to the render grid if it exists
+    if (fallingLetter) {
+      renderGrid[fallingLetter.row][fallingLetter.col] = fallingLetter.letter;
+    }
+    
+    // Flatten the grid for rendering
+    return renderGrid.flat().map((cell, index) => {
+      const row = Math.floor(index / 8);
+      const col = index % 8;
+      
+      // Check if this is the falling letter for styling
+      const isFallingLetter = fallingLetter && 
+                             fallingLetter.row === row && 
+                             fallingLetter.col === col;
+      
+      return (
+        <div 
+          key={index} 
+          className={`aspect-square border border-gray-700 rounded flex items-center justify-center shadow-sm text-xl font-semibold transition-colors duration-200
+            ${cell ? 'bg-gray-800' : 'bg-gray-800/50'}
+            ${isFallingLetter ? 'bg-purple-900/80 border-purple-500' : ''}`}
+        >
+          {cell}
+        </div>
+      );
+    });
+  };
+  
   return (
     <div className="min-h-screen h-screen bg-gray-950 flex flex-col items-center p-4 md:py-6 overflow-hidden">
       {/* Title Section - Responsive padding and margin */}
@@ -23,12 +179,7 @@ const Index = () => {
         {/* Game Grid - Fluid responsive sizing with min/max constraints and adjusted height */}
         <div className="w-full lg:w-3/4 xl:w-auto flex items-center justify-center">
           <div className="grid grid-cols-8 gap-1 aspect-square w-full max-w-[min(calc(100vh_-_14rem),650px)] min-h-[min(350px,65vh)] md:min-h-[min(450px,70vh)]">
-            {Array(64).fill(0).map((_, index) => (
-              <div 
-                key={index} 
-                className="aspect-square bg-gray-800/50 border border-gray-700 rounded flex items-center justify-center shadow-sm text-xl font-semibold text-white"
-              ></div>
-            ))}
+            {renderGrid()}
           </div>
         </div>
 
@@ -43,12 +194,21 @@ const Index = () => {
               <p className="text-sm text-gray-400">Current Word</p>
               <div className="flex gap-2 items-center">
                 <div className="p-2 bg-gray-800 rounded-md text-white font-medium text-center flex-1">
-                  -
+                  {currentWord || "-"}
                 </div>
-                <Button variant="outline" size="icon" className="h-8 w-8 bg-gray-800 hover:bg-gray-700 border-gray-700">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="h-8 w-8 bg-gray-800 hover:bg-gray-700 border-gray-700"
+                  onClick={clearWord}
+                >
                   <X className="h-4 w-4 text-white" />
                 </Button>
-                <Button variant="outline" size="icon" className="h-8 w-8 bg-gray-800 hover:bg-gray-700 border-gray-700">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="h-8 w-8 bg-gray-800 hover:bg-gray-700 border-gray-700"
+                >
                   <Check className="h-4 w-4 text-white" />
                 </Button>
               </div>
@@ -58,23 +218,37 @@ const Index = () => {
             <div className="flex justify-between gap-4">
               <div className="bg-gray-800 rounded-lg p-2 flex-1 flex flex-col items-center">
                 <p className="text-xs text-gray-400">Score</p>
-                <p className="text-xl font-semibold text-white">0</p>
+                <p className="text-xl font-semibold text-white">{score}</p>
               </div>
               <div className="bg-gray-800 rounded-lg p-2 flex-1 flex flex-col items-center">
                 <p className="text-xs text-gray-400">Level</p>
-                <p className="text-xl font-semibold text-white">1</p>
+                <p className="text-xl font-semibold text-white">{level}</p>
               </div>
             </div>
 
             {/* Action buttons moved up and horizontally aligned */}
             <div className="flex justify-center gap-3 pb-1 md:pb-2">
-              <Button variant="outline" size="icon" className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-purple-900 border-gray-700 shadow-md">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-purple-900 border-gray-700 shadow-md"
+              >
                 <Shuffle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
               </Button>
-              <Button variant="outline" size="icon" className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-blue-900 border-gray-700 shadow-md">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-blue-900 border-gray-700 shadow-md"
+                onClick={resetGame}
+              >
                 <RotateCw className="h-4 w-4 md:h-5 md:w-5 text-blue-400" />
               </Button>
-              <Button variant="outline" size="icon" className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-orange-900 border-gray-700 shadow-md">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-orange-900 border-gray-700 shadow-md"
+                onClick={() => setGameActive(!gameActive)}
+              >
                 <Zap className="h-4 w-4 md:h-5 md:w-5 text-orange-400" />
               </Button>
             </div>
