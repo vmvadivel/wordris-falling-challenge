@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Card, 
@@ -180,9 +179,9 @@ if (elapsed > dropInterval.current) {
       return (
         <div 
           key={index} 
-          className={`aspect-square border border-gray-700 rounded flex items-center justify-center shadow-sm text-xl font-semibold transition-colors duration-200
-            ${cell ? 'bg-gray-800' : 'bg-gray-800/50'}
-            ${isFallingLetter ? 'bg-purple-900/80 border-purple-500' : ''}`}
+          className={`aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200
+            ${cell ? 'bg-white text-black' : 'bg-white/50'}
+            ${isFallingLetter ? 'bg-purple-100 border-purple-500 text-black' : ''}`}
           onClick={() => handleCellClick(row, col)}
         >
           {cell}
