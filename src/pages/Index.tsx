@@ -76,26 +76,26 @@ const Index = () => {
     const elapsed = timestamp - lastDropTime.current;
     
     // Time to move the letter down
-    if (fallingLetter && elapsed > dropInterval.current) {
-      lastDropTime.current = timestamp;
-      
-      const nextRow = fallingLetter.row + 1;
-      
-      // Check if the letter can fall further
-      if (nextRow < 8 && grid[nextRow][fallingLetter.col] === null) {
-        // Move down one cell
-        setFallingLetter({
-          ...fallingLetter,
-          row: nextRow
-        });
-      } else {
-        // Letter has landed - update grid and clear falling letter
-        const newGrid = [...grid];
-        newGrid[fallingLetter.row][fallingLetter.col] = fallingLetter.letter;
-        setGrid(newGrid);
-        setFallingLetter(null);
-      }
+if (elapsed > dropInterval.current) {
+  lastDropTime.current = timestamp;
+
+  setFallingLetter(prev => {
+    if (!prev) return null;
+
+    const nextRow = prev.row + 1;
+
+    if (nextRow < 8 && grid[nextRow][prev.col] === null) {
+      return { ...prev, row: nextRow };
+    } else {
+      setGrid(oldGrid => {
+        const newGrid = [...oldGrid.map(row => [...row])];
+        newGrid[prev.row][prev.col] = prev.letter;
+        return newGrid;
+      });
+      return null;
     }
+  });
+}
     
     // Random chance to spawn a new letter if none is falling
     if (!fallingLetter && Math.random() < 0.02) { // Small chance each frame
