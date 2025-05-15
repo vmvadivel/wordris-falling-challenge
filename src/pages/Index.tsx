@@ -57,17 +57,21 @@ const Index = () => {
   };
   
   // Spawn a new letter in a random available column
-  const spawnNewLetter = () => {
+const spawnNewLetter = () => {
+  setFallingLetter(prev => {
+    if (prev) return prev; // Do nothing if one is already falling
+
     const availableColumns = getAvailableColumns();
-    if (availableColumns.length > 0) {
-      const randomCol = availableColumns[Math.floor(Math.random() * availableColumns.length)];
-      setFallingLetter({
-        letter: getRandomLetter(),
-        col: randomCol,
-        row: 0
-      });
-    }
-  };
+    if (availableColumns.length === 0) return null;
+
+    const randomCol = availableColumns[Math.floor(Math.random() * availableColumns.length)];
+    return {
+      letter: getRandomLetter(),
+      col: randomCol,
+      row: 0
+    };
+  });
+};
   
   // Game loop with requestAnimationFrame for smooth animation
   const gameLoop = (timestamp: number) => {
