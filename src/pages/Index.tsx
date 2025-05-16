@@ -13,10 +13,27 @@ type Cell = string | null;
 type GameGrid = Cell[][];
 
 // Generate a random letter A-Z
-const getRandomLetter = (): string => {
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  return letters[Math.floor(Math.random() * letters.length)];
+const letterFrequencies: { [letter: string]: number } = {
+  E: 12, T: 9, A: 8, O: 8, I: 7, N: 7, S: 6, H: 6, R: 6, D: 4,
+  L: 4, C: 3, U: 3, M: 2, W: 2, F: 2, G: 2, Y: 2, P: 2, B: 1,
+  V: 1, K: 1, J: 0.5, X: 0.5, Q: 0.3, Z: 0.3,
 };
+
+const getRandomLetter = (): string => {
+  const letters = Object.keys(letterFrequencies);
+  const weights = letters.map(l => letterFrequencies[l]);
+
+  const total = weights.reduce((a, b) => a + b, 0);
+  let rand = Math.random() * total;
+
+  for (let i = 0; i < letters.length; i++) {
+    rand -= weights[i];
+    if (rand <= 0) return letters[i];
+  }
+
+  return "E"; // fallback
+};
+
 
 // Create an empty 8x8 grid
 const createEmptyGrid = (): GameGrid => {
