@@ -264,12 +264,11 @@ const gameLoop = (timestamp: number) => {
   };
   
   // Handle clicking on a cell
-  const handleCellClick = (row: number, col: number) => {
-    // Ensure we can only click on cells that have letters
-    if (!grid[row][col]) return;
+  const handleCellClick = (row: number, col: number, letter: string) => {
+    // Only allow selection when the game is active
+    if (!gameActive) return;
     
     const clickedPosition = { row, col };
-    const clickedLetter = grid[row][col] as string;
     
     // Check if this cell is already selected
     const cellIndex = selectedCells.findIndex(cell => 
@@ -296,17 +295,20 @@ const gameLoop = (timestamp: number) => {
     
     if (!lastSelected || areAdjacent(lastSelected, clickedPosition)) {
       // Update selected cells
-      const newSelectedCell = { letter: clickedLetter, position: clickedPosition };
+      const newSelectedCell = { letter, position: clickedPosition };
       setSelectedCells(prev => [...prev, newSelectedCell]);
       
       // Update current word
-      setCurrentWord(prev => prev + clickedLetter);
+      setCurrentWord(prev => prev + letter);
     }
   };
   
   // Render the combined grid (static letters plus falling letter)
 const renderGrid = () => {
+  // Create a copy of the grid for rendering that includes falling letters
   const renderGrid = grid.map(row => [...row]);
+  
+  // Add falling letters to the render grid
   fallingLetters.forEach(l => {
     renderGrid[l.row][l.col] = l.letter;
   });
@@ -314,7 +316,21 @@ const renderGrid = () => {
   return renderGrid.flat().map((cell, index) => {
     const row = Math.floor(index / 8);
     const col = index % 8;
-    const isFalling = fallingLetters.some(l => l.row === row && l.col === col);
+    
+    // Check if this position has a falling letter
+    const fallingLetter = fallingLetters.find(l => l.row === row && l.col === col);
+    const isFalling = !!fallingLetter;
+    const letter = cell || (fallingLetter ? fallingLetter.letter : null);
+    
+    // Don't render empty cells
+    if (!letter) {
+      return (
+        <div
+          key={index}
+          className="grid-cell aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200 relative bg-white/50"
+        />
+      );
+    }
     
     // Check if this cell is selected
     const selectedIndex = selectedCells.findIndex(
@@ -326,15 +342,18 @@ const renderGrid = () => {
     return (
       <div
         key={index}
-        className={`grid-cell aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200 relative
-          ${cell ? 'bg-white text-black' : 'bg-white/50'}
+        className={`grid-cell aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200 relative cursor-pointer
+          ${letter ? 'bg-white text-black' : 'bg-white/50'}
           ${isFalling ? 'bg-purple-100 border-purple-500 text-black' : ''}
-          ${isSelected ? 'selected' : ''}`}
-        onClick={() => handleCellClick(row, col)}
+          ${isSelected ? 'selected bg-blue-200 border-blue-500' : ''}
+          ${!isSelected && letter ? 'hover:bg-gray-100' : ''}`}
+        onClick={() => letter && handleCellClick(row, col, letter)}
       >
-        {cell}
+        {letter}
         {isSelected && (
-          <span className="order-indicator">{selectedIndex + 1}</span>
+          <span className="absolute top-0 right-0 w-5 h-5 flex items-center justify-center bg-blue-500 text-white text-xs rounded-full -mt-2 -mr-2">
+            {selectedIndex + 1}
+          </span>
         )}
       </div>
     );
