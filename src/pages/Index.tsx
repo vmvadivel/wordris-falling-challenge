@@ -14,10 +14,6 @@ import { addShakeAnimation, highlightCells } from "@/utils/animationUtils";
 import { showWordValidationToast, showLevelUpToast } from "@/utils/toastUtils";
 import { Cell, GameGrid, Position, FallingLetter, SelectedCell } from "@/types/game";
 
-// Types for our grid
-type Cell = string | null;
-type GameGrid = Cell[][];
-
 // Generate a random letter A-Z
 const letterFrequencies: { [letter: string]: number } = {
   E: 12, T: 9, A: 8, O: 8, I: 7, N: 7, S: 6, H: 6, R: 6, D: 4,
