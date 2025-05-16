@@ -106,49 +106,74 @@ const spawnNewLetter = () => {
   
   // Game loop with requestAnimationFrame for smooth animation
 const gameLoop = (timestamp: number) => {
-  if (!gameActive) return;
+    if (!gameActive) return;
 
-  const elapsed = timestamp - lastDropTime.current;
+    const elapsed = timestamp - lastDropTime.current;
 
-  if (elapsed > dropInterval.current) {
-    lastDropTime.current = timestamp;
+    if (elapsed > dropInterval.current) {
+      lastDropTime.current = timestamp;
 
-    setFallingLetters(prevLetters => {
-      let updatedLetters: FallingLetter[] = [];
-      let landedLetters: FallingLetter[] = [];
+      setFallingLetters(prevLetters => {
+        let updatedLetters: FallingLetter[] = [];
+        let landedLetters: FallingLetter[] = [];
 
-      prevLetters.forEach(l => {
-        const nextRow = l.row + 1;
-        if (nextRow < 8 && grid[nextRow][l.col] === null && !prevLetters.some(fl => fl.col === l.col && fl.row === nextRow)) {
-          updatedLetters.push({ ...l, row: nextRow });
-        } else {
-          landedLetters.push(l);
-        }
-      });
-
-      // Place landed letters on the grid
-      if (landedLetters.length > 0) {
-        setGrid(oldGrid => {
-          const newGrid = oldGrid.map(row => [...row]);
-          landedLetters.forEach(l => {
-            newGrid[l.row][l.col] = l.letter;
-          });
-          return newGrid;
+        prevLetters.forEach(l => {
+          const nextRow = l.row + 1;
+          if (nextRow < 8 && grid[nextRow][l.col] === null && !prevLetters.some(fl => fl.col === l.col && fl.row === nextRow)) {
+            updatedLetters.push({ ...l, row: nextRow });
+          } else {
+            landedLetters.push(l);
+          }
         });
-      }
 
-      return updatedLetters;
-    });
-  }
+        // Place landed letters on the grid
+        if (landedLetters.length > 0) {
+          setGrid(oldGrid => {
+            const newGrid = oldGrid.map(row => [...row]);
+            landedLetters.forEach(l => {
+              newGrid[l.row][l.col] = l.letter;
+            });
+            return newGrid;
+          });
+        }
 
-  // Spawn new letter if less than 3 are falling, with a small random chance
-  if (fallingLetters.length < 3 && Math.random() < 0.03) {
-    spawnNewLetter();
-  }
+        // When letters move, update any selections involving falling letters
+        if (updatedLetters.length > 0) {
+          setSelectedCells(prevSelectedCells => {
+            return prevSelectedCells.map(selectedCell => {
+              // Find if this selected cell corresponds to a falling letter that just moved
+              const matchingFallingLetter = prevLetters.find(
+                fl => fl.row === selectedCell.position.row && fl.col === selectedCell.position.col
+              );
+              
+              // If this selected cell is a falling letter that moved
+              if (matchingFallingLetter) {
+                // Find its new position
+                const updatedLetter = updatedLetters.find(ul => ul.id === matchingFallingLetter.id);
+                if (updatedLetter) {
+                  // Update the position in the selected cell
+                  return {
+                    ...selectedCell,
+                    position: { row: updatedLetter.row, col: updatedLetter.col }
+                  };
+                }
+              }
+              return selectedCell;
+            });
+          });
+        }
 
-  animationRef.current = requestAnimationFrame(gameLoop);
-};
+        return updatedLetters;
+      });
+    }
 
+    // Spawn new letter if less than 3 are falling, with a small random chance
+    if (fallingLetters.length < 3 && Math.random() < 0.03) {
+      spawnNewLetter();
+    }
+
+    animationRef.current = requestAnimationFrame(gameLoop);
+  };
   
   // Start/stop game
   useEffect(() => {
@@ -289,18 +314,10 @@ const gameLoop = (timestamp: number) => {
       return;
     }
     
-    // Check if this is adjacent to the last selected cell
-    // or if this is the first cell being selected
-    const lastSelected = selectedCells[selectedCells.length - 1]?.position;
-    
-    if (!lastSelected || areAdjacent(lastSelected, clickedPosition)) {
-      // Update selected cells
-      const newSelectedCell = { letter, position: clickedPosition };
-      setSelectedCells(prev => [...prev, newSelectedCell]);
-      
-      // Update current word
-      setCurrentWord(prev => prev + letter);
-    }
+    // Add the selected cell regardless of position - removed adjacency check
+    const newSelectedCell = { letter, position: clickedPosition };
+    setSelectedCells(prev => [...prev, newSelectedCell]);
+    setCurrentWord(prev => prev + letter);
   };
   
   // Render the combined grid (static letters plus falling letter)
