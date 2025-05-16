@@ -7,6 +7,12 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, RotateCw, Shuffle, X, Zap } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { isValidWord, calculateWordScore } from "@/utils/dictionary";
+import { areAdjacent, getUpdatedGrid } from "@/utils/gridUtils";
+import { addShakeAnimation, highlightCells } from "@/utils/animationUtils";
+import { showWordValidationToast, showLevelUpToast } from "@/utils/toastUtils";
+import { Cell, GameGrid, Position, FallingLetter, SelectedCell } from "@/types/game";
 
 // Types for our grid
 type Cell = string | null;
@@ -47,16 +53,21 @@ const Index = () => {
   const [score, setScore] = useState<number>(0);
   const [level, setLevel] = useState<number>(1);
   const [gameActive, setGameActive] = useState<boolean>(true);
+  const [highScore, setHighScore] = useState<number>(0);
+  const [consecutiveWords, setConsecutiveWords] = useState<number>(0);
+  
+  // Selection state
+  const [selectedCells, setSelectedCells] = useState<SelectedCell[]>([]);
   
   // Falling letter state
-  type FallingLetter = { letter: string, col: number, row: number, id: string };
-const [fallingLetters, setFallingLetters] = useState<FallingLetter[]>([]);
+  const [fallingLetters, setFallingLetters] = useState<FallingLetter[]>([]);
 
-  
   // Refs for animation control
   const animationRef = useRef<number | null>(null);
   const lastDropTime = useRef<number>(0);
   const dropInterval = useRef<number>(800); // Drop speed in milliseconds
+  const gridRef = useRef<HTMLDivElement>(null);
+  const wordBoxRef = useRef<HTMLDivElement>(null);
   
   // Function to check if a column is available for spawning
   const isColumnAvailable = (col: number): boolean => {
@@ -96,7 +107,6 @@ const spawnNewLetter = () => {
     ];
   });
 };
-
   
   // Game loop with requestAnimationFrame for smooth animation
 const gameLoop = (timestamp: number) => {
@@ -145,50 +155,156 @@ const gameLoop = (timestamp: number) => {
 
   
   // Start/stop game
- useEffect(() => {
-  if (gameActive) {
-    lastDropTime.current = performance.now();
-    animationRef.current = requestAnimationFrame(gameLoop);
-  } else if (animationRef.current) {
-    cancelAnimationFrame(animationRef.current);
-  }
-
-  return () => {
-    if (animationRef.current) {
+  useEffect(() => {
+    if (gameActive) {
+      lastDropTime.current = performance.now();
+      animationRef.current = requestAnimationFrame(gameLoop);
+    } else if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
-  };
-}, [gameActive, grid, fallingLetters]);
 
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [gameActive, grid, fallingLetters]);
   
   // Update drop speed based on level
   useEffect(() => {
     dropInterval.current = Math.max(200, 800 - (level - 1) * 100);
   }, [level]);
   
+  // Check if score triggers a level up
+  useEffect(() => {
+    if (score >= level * 100) {
+      setLevel(prev => {
+        const newLevel = prev + 1;
+        showLevelUpToast(newLevel);
+        return newLevel;
+      });
+    }
+
+    // Update high score if needed
+    setHighScore(prev => Math.max(prev, score));
+  }, [score]);
+  
   // Reset the game
   const resetGame = () => {
     setGrid(createEmptyGrid());
     setCurrentWord("");
+    setSelectedCells([]);
     setScore(0);
     setLevel(1);
-    setFallingLetter(null);
+    setFallingLetters([]);
+    setConsecutiveWords(0);
     setGameActive(true);
   };
   
   // Clear current word
   const clearWord = () => {
     setCurrentWord("");
+    setSelectedCells([]);
   };
   
-  // Handle clicking on a cell (not implemented yet)
+  // Submit the current word
+  const submitWord = () => {
+    if (selectedCells.length < 3) {
+      toast({
+        title: "Word too short",
+        description: "Words must be at least 3 letters long",
+        variant: "destructive"
+      });
+      
+      if (wordBoxRef.current) {
+        addShakeAnimation(wordBoxRef.current);
+      }
+      return;
+    }
+
+    const word = currentWord;
+    const positions = selectedCells.map(cell => cell.position);
+    
+    // Check if the word is valid
+    if (isValidWord(word)) {
+      // Calculate score
+      const { totalScore, baseScore, rarityBonus } = calculateWordScore(word);
+      
+      // Add combo bonus for consecutive words
+      const newConsecutiveWords = consecutiveWords + 1;
+      const comboBonus = newConsecutiveWords > 1 ? newConsecutiveWords * 5 : 0;
+      const finalScore = totalScore + comboBonus;
+      
+      // Update score
+      setScore(prev => prev + finalScore);
+      setConsecutiveWords(newConsecutiveWords);
+      
+      // Show validation feedback
+      highlightCells(positions, true, gridRef.current);
+      showWordValidationToast(word, { 
+        isValid: true, 
+        score: finalScore,
+        baseScore,
+        rarityBonus
+      }, newConsecutiveWords);
+      
+      // Update grid and remove selected cells
+      setGrid(prev => getUpdatedGrid(prev, positions));
+      
+      // Clear selection
+      clearWord();
+    } else {
+      // Invalid word
+      if (wordBoxRef.current) {
+        addShakeAnimation(wordBoxRef.current);
+      }
+      
+      highlightCells(positions, false, gridRef.current);
+      showWordValidationToast(word, { isValid: false }, 0);
+      
+      // Reset consecutive words counter
+      setConsecutiveWords(0);
+    }
+  };
+  
+  // Handle clicking on a cell
   const handleCellClick = (row: number, col: number) => {
     // Ensure we can only click on cells that have letters
-    if (grid[row][col]) {
-      // Add the letter to current word
-      setCurrentWord(prev => prev + grid[row][col]);
+    if (!grid[row][col]) return;
+    
+    const clickedPosition = { row, col };
+    const clickedLetter = grid[row][col] as string;
+    
+    // Check if this cell is already selected
+    const cellIndex = selectedCells.findIndex(cell => 
+      cell.position.row === row && cell.position.col === col
+    );
+    
+    if (cellIndex !== -1) {
+      // If clicking the last selected cell, deselect it
+      if (cellIndex === selectedCells.length - 1) {
+        setSelectedCells(prev => prev.slice(0, -1));
+        setCurrentWord(prev => prev.slice(0, -1));
+      }
+      // If clicking earlier in the chain, deselect from that point forward
+      else if (cellIndex >= 0) {
+        setSelectedCells(prev => prev.slice(0, cellIndex + 1));
+        setCurrentWord(prev => prev.slice(0, cellIndex + 1));
+      }
+      return;
+    }
+    
+    // Check if this is adjacent to the last selected cell
+    // or if this is the first cell being selected
+    const lastSelected = selectedCells[selectedCells.length - 1]?.position;
+    
+    if (!lastSelected || areAdjacent(lastSelected, clickedPosition)) {
+      // Update selected cells
+      const newSelectedCell = { letter: clickedLetter, position: clickedPosition };
+      setSelectedCells(prev => [...prev, newSelectedCell]);
       
-      // For future implementation: letter selection, word validation, etc.
+      // Update current word
+      setCurrentWord(prev => prev + clickedLetter);
     }
   };
   
@@ -203,16 +319,27 @@ const renderGrid = () => {
     const row = Math.floor(index / 8);
     const col = index % 8;
     const isFalling = fallingLetters.some(l => l.row === row && l.col === col);
-
+    
+    // Check if this cell is selected
+    const selectedIndex = selectedCells.findIndex(
+      selected => selected.position.row === row && selected.position.col === col
+    );
+    
+    const isSelected = selectedIndex !== -1;
+    
     return (
       <div
         key={index}
-        className={`aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200
+        className={`grid-cell aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200 relative
           ${cell ? 'bg-white text-black' : 'bg-white/50'}
-          ${isFalling ? 'bg-purple-100 border-purple-500 text-black' : ''}`}
+          ${isFalling ? 'bg-purple-100 border-purple-500 text-black' : ''}
+          ${isSelected ? 'selected' : ''}`}
         onClick={() => handleCellClick(row, col)}
       >
         {cell}
+        {isSelected && (
+          <span className="order-indicator">{selectedIndex + 1}</span>
+        )}
       </div>
     );
   });
@@ -229,16 +356,17 @@ const renderGrid = () => {
       {/* Game Container - Full height with flex grow */}
       <div className="w-full max-w-6xl flex-1 flex flex-col lg:flex-row gap-4 justify-center items-stretch">
         {/* Game Grid - Fluid responsive sizing with min/max constraints and adjusted height */}
-     <div className="flex-1 flex items-center justify-center">
-  <div className="grid grid-cols-8 gap-1 aspect-square w-full h-full max-w-[min(80vw,80vh,650px)] max-h-[min(80vw,80vh,650px)] min-w-[240px] min-h-[240px]">
-    {renderGrid()}
-  </div>
-</div>
-
+        <div className="flex-1 flex items-center justify-center">
+          <div 
+            ref={gridRef}
+            className="grid grid-cols-8 gap-1 aspect-square w-full h-full max-w-[min(80vw,80vh,650px)] max-h-[min(80vw,80vh,650px)] min-w-[240px] min-h-[240px]"
+          >
+            {renderGrid()}
+          </div>
+        </div>
 
         {/* Control Panel - Adaptive height and width */}
-       <Card className="w-full lg:w-1/4 xl:w-72 bg-gray-900 border-gray-800 flex flex-col self-stretch lg:self-center max-h-[min(450px,65vh)] lg:max-h-[min(calc(100vh_-_14rem),650px)]">
-
+        <Card className="w-full lg:w-1/4 xl:w-72 bg-gray-900 border-gray-800 flex flex-col self-stretch lg:self-center max-h-[min(450px,65vh)] lg:max-h-[min(calc(100vh_-_14rem),650px)]">
           <CardHeader className="py-2 md:py-3">
             <CardTitle className="text-white text-xl">Game Controls</CardTitle>
           </CardHeader>
@@ -246,7 +374,7 @@ const renderGrid = () => {
             {/* Current Word with Clear and Submit buttons */}
             <div className="space-y-1">
               <p className="text-sm text-gray-400">Current Word</p>
-              <div className="flex gap-2 items-center">
+              <div ref={wordBoxRef} className="flex gap-2 items-center">
                 <div className="p-2 bg-gray-800 rounded-md text-white font-medium text-center flex-1">
                   {currentWord || "-"}
                 </div>
@@ -262,6 +390,7 @@ const renderGrid = () => {
                   variant="outline" 
                   size="icon" 
                   className="h-8 w-8 bg-gray-800 hover:bg-gray-700 border-gray-700"
+                  onClick={submitWord}
                 >
                   <Check className="h-4 w-4 text-white" />
                 </Button>
@@ -278,6 +407,12 @@ const renderGrid = () => {
                 <p className="text-xs text-gray-400">Level</p>
                 <p className="text-xl font-semibold text-white">{level}</p>
               </div>
+            </div>
+
+            {/* High Score */}
+            <div className="bg-gray-800 rounded-lg p-2 flex-1 flex flex-col items-center">
+              <p className="text-xs text-gray-400">High Score</p>
+              <p className="text-xl font-semibold text-white">{highScore}</p>
             </div>
 
             {/* Action buttons moved up and horizontally aligned */}
