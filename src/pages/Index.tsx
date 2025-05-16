@@ -32,7 +32,9 @@ const Index = () => {
   const [gameActive, setGameActive] = useState<boolean>(true);
   
   // Falling letter state
-  const [fallingLetter, setFallingLetter] = useState<{letter: string, col: number, row: number} | null>(null);
+  type FallingLetter = { letter: string, col: number, row: number, id: string };
+const [fallingLetters, setFallingLetters] = useState<FallingLetter[]>([]);
+
   
   // Refs for animation control
   const animationRef = useRef<number | null>(null);
@@ -57,73 +59,90 @@ const Index = () => {
   
   // Spawn a new letter in a random available column
 const spawnNewLetter = () => {
-  setFallingLetter(prev => {
-    if (prev) return prev; // Do nothing if one is already falling
+  setFallingLetters(prev => {
+    if (prev.length >= 3) return prev; // Max 3 at once
 
-    const availableColumns = getAvailableColumns();
-    if (availableColumns.length === 0) return null;
+    const availableColumns = getAvailableColumns().filter(
+      col => !prev.some(l => l.col === col && l.row === 0)
+    );
+    if (availableColumns.length === 0) return prev;
 
     const randomCol = availableColumns[Math.floor(Math.random() * availableColumns.length)];
-    return {
-      letter: getRandomLetter(),
-      col: randomCol,
-      row: 0
-    };
+    return [
+      ...prev,
+      {
+        letter: getRandomLetter(),
+        col: randomCol,
+        row: 0,
+        id: Math.random().toString(36).substr(2, 9),
+      }
+    ];
   });
 };
+
   
   // Game loop with requestAnimationFrame for smooth animation
-  const gameLoop = (timestamp: number) => {
-    if (!gameActive) return;
-    
-    const elapsed = timestamp - lastDropTime.current;
-    
-    // Time to move the letter down
-if (elapsed > dropInterval.current) {
-  lastDropTime.current = timestamp;
+const gameLoop = (timestamp: number) => {
+  if (!gameActive) return;
 
-  setFallingLetter(prev => {
-    if (!prev) return null;
+  const elapsed = timestamp - lastDropTime.current;
 
-    const nextRow = prev.row + 1;
+  if (elapsed > dropInterval.current) {
+    lastDropTime.current = timestamp;
 
-    if (nextRow < 8 && grid[nextRow][prev.col] === null) {
-      return { ...prev, row: nextRow };
-    } else {
-      setGrid(oldGrid => {
-        const newGrid = [...oldGrid.map(row => [...row])];
-        newGrid[prev.row][prev.col] = prev.letter;
-        return newGrid;
+    setFallingLetters(prevLetters => {
+      let updatedLetters: FallingLetter[] = [];
+      let landedLetters: FallingLetter[] = [];
+
+      prevLetters.forEach(l => {
+        const nextRow = l.row + 1;
+        if (nextRow < 8 && grid[nextRow][l.col] === null && !prevLetters.some(fl => fl.col === l.col && fl.row === nextRow)) {
+          updatedLetters.push({ ...l, row: nextRow });
+        } else {
+          landedLetters.push(l);
+        }
       });
-      return null;
-    }
-  });
-}
-    
-    // Random chance to spawn a new letter if none is falling
-    if (!fallingLetter && Math.random() < 0.02) { // Small chance each frame
-      spawnNewLetter();
-    }
-    
-    // Continue the animation loop
-    animationRef.current = requestAnimationFrame(gameLoop);
-  };
+
+      // Place landed letters on the grid
+      if (landedLetters.length > 0) {
+        setGrid(oldGrid => {
+          const newGrid = oldGrid.map(row => [...row]);
+          landedLetters.forEach(l => {
+            newGrid[l.row][l.col] = l.letter;
+          });
+          return newGrid;
+        });
+      }
+
+      return updatedLetters;
+    });
+  }
+
+  // Spawn new letter if less than 3 are falling, with a small random chance
+  if (fallingLetters.length < 3 && Math.random() < 0.03) {
+    spawnNewLetter();
+  }
+
+  animationRef.current = requestAnimationFrame(gameLoop);
+};
+
   
   // Start/stop game
-  useEffect(() => {
-    if (gameActive) {
-      lastDropTime.current = performance.now();
-      animationRef.current = requestAnimationFrame(gameLoop);
-    } else if (animationRef.current) {
+ useEffect(() => {
+  if (gameActive) {
+    lastDropTime.current = performance.now();
+    animationRef.current = requestAnimationFrame(gameLoop);
+  } else if (animationRef.current) {
+    cancelAnimationFrame(animationRef.current);
+  }
+
+  return () => {
+    if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
-    
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [gameActive, grid]);
+  };
+}, [gameActive, grid, fallingLetters]);
+
   
   // Update drop speed based on level
   useEffect(() => {
@@ -157,38 +176,30 @@ if (elapsed > dropInterval.current) {
   };
   
   // Render the combined grid (static letters plus falling letter)
-  const renderGrid = () => {
-    // Create a copy of the grid for rendering
-    const renderGrid = grid.map(row => [...row]);
-    
-    // Add falling letter to the render grid if it exists
-    if (fallingLetter) {
-      renderGrid[fallingLetter.row][fallingLetter.col] = fallingLetter.letter;
-    }
-    
-    // Render each cell with its styling
-    return renderGrid.flat().map((cell, index) => {
-      const row = Math.floor(index / 8);
-      const col = index % 8;
-      
-      // Check if this is the falling letter for styling
-      const isFallingLetter = fallingLetter && 
-                             fallingLetter.row === row && 
-                             fallingLetter.col === col;
-      
-      return (
-        <div 
-          key={index} 
-          className={`aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200
-            ${cell ? 'bg-white text-black' : 'bg-white/50'}
-            ${isFallingLetter ? 'bg-purple-100 border-purple-500 text-black' : ''}`}
-          onClick={() => handleCellClick(row, col)}
-        >
-          {cell}
-        </div>
-      );
-    });
-  };
+const renderGrid = () => {
+  const renderGrid = grid.map(row => [...row]);
+  fallingLetters.forEach(l => {
+    renderGrid[l.row][l.col] = l.letter;
+  });
+
+  return renderGrid.flat().map((cell, index) => {
+    const row = Math.floor(index / 8);
+    const col = index % 8;
+    const isFalling = fallingLetters.some(l => l.row === row && l.col === col);
+
+    return (
+      <div
+        key={index}
+        className={`aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200
+          ${cell ? 'bg-white text-black' : 'bg-white/50'}
+          ${isFalling ? 'bg-purple-100 border-purple-500 text-black' : ''}`}
+        onClick={() => handleCellClick(row, col)}
+      >
+        {cell}
+      </div>
+    );
+  });
+};
   
   return (
     <div className="min-h-screen h-screen bg-gray-950 flex flex-col items-center p-4 md:py-6 overflow-hidden">
