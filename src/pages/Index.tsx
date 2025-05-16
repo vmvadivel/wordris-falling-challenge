@@ -199,16 +199,18 @@ if (elapsed > dropInterval.current) {
       </div>
 
       {/* Game Container - Full height with flex grow */}
-      <div className="w-full max-w-6xl flex-1 flex flex-col lg:flex-row gap-4 justify-center items-center">
+      <div className="w-full max-w-6xl flex-1 flex flex-col lg:flex-row gap-4 justify-center items-stretch">
         {/* Game Grid - Fluid responsive sizing with min/max constraints and adjusted height */}
-        <div className="w-full flex items-center justify-center p-4">
-  <div className="grid grid-cols-8 gap-1 w-full h-[80vw] max-w-[600px] max-h-[600px]">
-            {renderGrid()}
-          </div>
-        </div>
+     <div className="flex-1 flex items-center justify-center">
+  <div className="grid grid-cols-8 gap-1 aspect-square w-full h-full max-w-[min(80vw,80vh,650px)] max-h-[min(80vw,80vh,650px)] min-w-[240px] min-h-[240px]">
+    {renderGrid()}
+  </div>
+</div>
+
 
         {/* Control Panel - Adaptive height and width */}
-        <Card className="w-full lg:w-1/4 xl:w-72 bg-gray-900 border-gray-800 flex flex-col self-stretch lg:self-center max-h-[min(450px,65vh)] lg:max-h-[min(calc(100vh_-_14rem),650px)]">
+        <Card className="w-full lg:w-80 xl:w-96 bg-gray-900 border-gray-800 flex flex-col self-stretch max-h-[min(80vh,650px)]">
+
           <CardHeader className="py-2 md:py-3">
             <CardTitle className="text-white text-xl">Game Controls</CardTitle>
           </CardHeader>
