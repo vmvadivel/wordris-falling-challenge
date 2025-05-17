@@ -457,6 +457,8 @@ const Index = () => {
     setGameStartTime(Date.now());
     setTimeElapsed(0);
     setTimeSinceLastWord(0);
+    setLettersPlaced(0);
+    setBestWord(null);
     
     if (timeFreezeTimer !== null) {
       clearTimeout(timeFreezeTimer);
@@ -504,6 +506,17 @@ const Index = () => {
       const effectMultiplier = effects.scoreMultiplier || 1;
       const currentPointMultiplier = pointMultiplier;
       const finalScore = (totalScore + comboBonus) * effectMultiplier * currentPointMultiplier;
+      
+      // Update letter tracking
+      setLettersPlaced(prev => prev + positions.length);
+      
+      // Check if this is the best word so far
+      if (!bestWord || finalScore > bestWord.score) {
+        setBestWord({
+          word: word,
+          score: finalScore
+        });
+      }
       
       // Update score
       setScore(prev => prev + finalScore);
@@ -661,6 +674,10 @@ const Index = () => {
     setIsGameOver(false);
   };
   
+  // Additional tracking stats
+  const [lettersPlaced, setLettersPlaced] = useState<number>(0);
+  const [bestWord, setBestWord] = useState<{word: string, score: number} | null>(null);
+  
   return (
     <div className="min-h-screen h-screen bg-gray-950 flex flex-col items-center p-4 md:py-6 overflow-hidden">
       {/* Title Section - Responsive padding and margin */}
@@ -804,7 +821,14 @@ const Index = () => {
           level,
           highScore,
           wordsFormed,
-          timeElapsed
+          timeElapsed,
+          lettersPlaced,
+          signatureWord: bestWord,
+          achievements: [
+            ...(wordsFormed >= 5 ? ["Word Wizard"] : []),
+            ...(lettersPlaced >= 50 ? ["Word Factory"] : []),
+            ...(score >= 300 ? ["Score Master"] : [])
+          ]
         }}
       />
     </div>
