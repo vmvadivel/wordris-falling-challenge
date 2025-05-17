@@ -25,3 +25,14 @@ export type WordValidationResult = {
   baseScore?: number;
   rarityBonus?: number;
 };
+
+export type SpecialLetterEffect = {
+  letter: string;
+  name: string;
+  description: string;
+  color: string;
+  borderColor: string;
+  backgroundColor: string;
+  icon: string;
+};
+

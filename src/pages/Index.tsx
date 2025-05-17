@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Card, 
@@ -13,12 +14,19 @@ import { areAdjacent, getUpdatedGrid } from "@/utils/gridUtils";
 import { addShakeAnimation, highlightCells } from "@/utils/animationUtils";
 import { showWordValidationToast, showLevelUpToast } from "@/utils/toastUtils";
 import { Cell, GameGrid, Position, FallingLetter, SelectedCell } from "@/types/game";
+import SpecialLettersModal from "@/components/SpecialLettersModal";
+import { SPECIAL_LETTERS, isSpecialLetter, getSpecialLetterStyle } from "@/utils/specialLetters";
 
 // Generate a random letter A-Z
 const letterFrequencies: { [letter: string]: number } = {
   E: 12, T: 9, A: 8, O: 8, I: 7, N: 7, S: 6, H: 6, R: 6, D: 4,
   L: 4, C: 3, U: 3, M: 2, W: 2, F: 2, G: 2, Y: 2, P: 2, B: 1,
   V: 1, K: 1, J: 0.5, X: 0.5, Q: 0.3, Z: 0.3,
+};
+
+// Create an empty 8x8 grid
+const createEmptyGrid = (): GameGrid => {
+  return Array(8).fill(null).map(() => Array(8).fill(null));
 };
 
 const getRandomLetter = (): string => {
@@ -36,12 +44,6 @@ const getRandomLetter = (): string => {
   return "E"; // fallback
 };
 
-
-// Create an empty 8x8 grid
-const createEmptyGrid = (): GameGrid => {
-  return Array(8).fill(null).map(() => Array(8).fill(null));
-};
-
 const Index = () => {
   // Game state
   const [grid, setGrid] = useState<GameGrid>(createEmptyGrid());
@@ -57,6 +59,11 @@ const Index = () => {
   
   // Falling letter state
   const [fallingLetters, setFallingLetters] = useState<FallingLetter[]>([]);
+
+  // Special letter effects state
+  const [timeFreeze, setTimeFreeze] = useState<boolean>(false);
+  const [timeFreezeTimer, setTimeFreezeTimer] = useState<number | null>(null);
+  const [showSpecialLettersModal, setShowSpecialLettersModal] = useState<boolean>(false);
 
   // Refs for animation control
   const animationRef = useRef<number | null>(null);
@@ -82,31 +89,146 @@ const Index = () => {
   };
   
   // Spawn a new letter in a random available column
-const spawnNewLetter = () => {
-  setFallingLetters(prev => {
-    if (prev.length >= 3) return prev; // Max 3 at once
+  const spawnNewLetter = () => {
+    setFallingLetters(prev => {
+      if (prev.length >= 3) return prev; // Max 3 at once
 
-    const availableColumns = getAvailableColumns().filter(
-      col => !prev.some(l => l.col === col && l.row === 0)
-    );
-    if (availableColumns.length === 0) return prev;
+      const availableColumns = getAvailableColumns().filter(
+        col => !prev.some(l => l.col === col && l.row === 0)
+      );
+      if (availableColumns.length === 0) return prev;
 
-    const randomCol = availableColumns[Math.floor(Math.random() * availableColumns.length)];
-    return [
-      ...prev,
-      {
-        letter: getRandomLetter(),
-        col: randomCol,
-        row: 0,
-        id: Math.random().toString(36).substr(2, 9),
+      const randomCol = availableColumns[Math.floor(Math.random() * availableColumns.length)];
+      return [
+        ...prev,
+        {
+          letter: getRandomLetter(),
+          col: randomCol,
+          row: 0,
+          id: Math.random().toString(36).substr(2, 9),
+        }
+      ];
+    });
+  };
+  
+  // Apply special letter effects
+  const applySpecialLetterEffects = (word: string, positions: Position[]) => {
+    // Check for special letters in the word
+    const letters = word.split('');
+    const specialLettersUsed = letters.filter(isSpecialLetter);
+    
+    if (specialLettersUsed.length === 0) return false;
+    
+    let scoreMultiplier = 1;
+    let hasAppliedEffect = false;
+    
+    // Process each special letter effect
+    for (const letter of specialLettersUsed) {
+      switch (letter) {
+        case 'Q': // Time Freeze
+          setTimeFreeze(true);
+          // Clear any existing timer
+          if (timeFreezeTimer !== null) {
+            clearTimeout(timeFreezeTimer);
+          }
+          // Set a new timer to end the freeze after 5 seconds
+          const timer = window.setTimeout(() => {
+            setTimeFreeze(false);
+            setTimeFreezeTimer(null);
+          }, 5000);
+          setTimeFreezeTimer(timer);
+          
+          toast({
+            title: "Time Freeze Activated!",
+            description: "Falling letters frozen for 5 seconds",
+            variant: "default",
+            duration: 3000,
+          });
+          hasAppliedEffect = true;
+          break;
+          
+        case 'Z': // Column Clear
+          // Find the column where Z was placed
+          const zPosition = positions.find(pos => {
+            return grid[pos.row][pos.col] === 'Z';
+          });
+          
+          if (zPosition) {
+            setGrid(prevGrid => {
+              const newGrid = [...prevGrid];
+              // Clear the entire column
+              for (let row = 0; row < newGrid.length; row++) {
+                newGrid[row][zPosition.col] = null;
+              }
+              return newGrid;
+            });
+            
+            toast({
+              title: "Column Clear Activated!",
+              description: "Cleared an entire column",
+              variant: "default",
+              duration: 3000,
+            });
+            hasAppliedEffect = true;
+          }
+          break;
+          
+        case 'X': // Area Clear
+          // Find the position where X was placed
+          const xPosition = positions.find(pos => {
+            return grid[pos.row][pos.col] === 'X';
+          });
+          
+          if (xPosition) {
+            setGrid(prevGrid => {
+              const newGrid = [...prevGrid];
+              // Clear the 8 adjacent cells (if they exist)
+              for (let r = -1; r <= 1; r++) {
+                for (let c = -1; c <= 1; c++) {
+                  if (r === 0 && c === 0) continue; // Skip the center cell (X itself)
+                  
+                  const newRow = xPosition.row + r;
+                  const newCol = xPosition.col + c;
+                  
+                  // Check if the position is valid
+                  if (newRow >= 0 && newRow < newGrid.length && 
+                      newCol >= 0 && newCol < newGrid[0].length) {
+                    newGrid[newRow][newCol] = null;
+                  }
+                }
+              }
+              return newGrid;
+            });
+            
+            toast({
+              title: "Area Clear Activated!",
+              description: "Cleared all adjacent tiles",
+              variant: "default",
+              duration: 3000,
+            });
+            hasAppliedEffect = true;
+          }
+          break;
+          
+        case 'J': // Double Score
+          scoreMultiplier = 2;
+          toast({
+            title: "Double Score Activated!",
+            description: "Score for this word is doubled",
+            variant: "default",
+            duration: 3000,
+          });
+          hasAppliedEffect = true;
+          break;
       }
-    ];
-  });
-};
+    }
+    
+    return { hasAppliedEffect, scoreMultiplier };
+  };
   
   // Game loop with requestAnimationFrame for smooth animation
-const gameLoop = (timestamp: number) => {
-    if (!gameActive) return;
+  const gameLoop = (timestamp: number) => {
+    if (!gameActive || timeFreeze) return;
 
     const elapsed = timestamp - lastDropTime.current;
 
@@ -189,7 +311,7 @@ const gameLoop = (timestamp: number) => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [gameActive, grid, fallingLetters]);
+  }, [gameActive, grid, fallingLetters, timeFreeze]);
   
   // Update drop speed based on level
   useEffect(() => {
@@ -210,6 +332,15 @@ const gameLoop = (timestamp: number) => {
     setHighScore(prev => Math.max(prev, score));
   }, [score]);
   
+  // Cleanup for time freeze timer
+  useEffect(() => {
+    return () => {
+      if (timeFreezeTimer !== null) {
+        clearTimeout(timeFreezeTimer);
+      }
+    };
+  }, [timeFreezeTimer]);
+  
   // Reset the game
   const resetGame = () => {
     setGrid(createEmptyGrid());
@@ -220,6 +351,11 @@ const gameLoop = (timestamp: number) => {
     setFallingLetters([]);
     setConsecutiveWords(0);
     setGameActive(true);
+    setTimeFreeze(false);
+    if (timeFreezeTimer !== null) {
+      clearTimeout(timeFreezeTimer);
+      setTimeFreezeTimer(null);
+    }
   };
   
   // Clear current word
@@ -251,10 +387,16 @@ const gameLoop = (timestamp: number) => {
       // Calculate score
       const { totalScore, baseScore, rarityBonus } = calculateWordScore(word);
       
+      // Check for special letter effects
+      const effects = applySpecialLetterEffects(word, positions);
+      
       // Add combo bonus for consecutive words
       const newConsecutiveWords = consecutiveWords + 1;
       const comboBonus = newConsecutiveWords > 1 ? newConsecutiveWords * 5 : 0;
-      const finalScore = totalScore + comboBonus;
+      
+      // Apply score multiplier from special effects if any
+      const effectMultiplier = effects && effects.scoreMultiplier ? effects.scoreMultiplier : 1;
+      const finalScore = (totalScore + comboBonus) * effectMultiplier;
       
       // Update score
       setScore(prev => prev + finalScore);
@@ -321,61 +463,64 @@ const gameLoop = (timestamp: number) => {
   };
   
   // Render the combined grid (static letters plus falling letter)
-const renderGrid = () => {
-  // Create a copy of the grid for rendering that includes falling letters
-  const renderGrid = grid.map(row => [...row]);
-  
-  // Add falling letters to the render grid
-  fallingLetters.forEach(l => {
-    renderGrid[l.row][l.col] = l.letter;
-  });
+  const renderGrid = () => {
+    // Create a copy of the grid for rendering that includes falling letters
+    const renderGrid = grid.map(row => [...row]);
+    
+    // Add falling letters to the render grid
+    fallingLetters.forEach(l => {
+      renderGrid[l.row][l.col] = l.letter;
+    });
 
-  return renderGrid.flat().map((cell, index) => {
-    const row = Math.floor(index / 8);
-    const col = index % 8;
-    
-    // Check if this position has a falling letter
-    const fallingLetter = fallingLetters.find(l => l.row === row && l.col === col);
-    const isFalling = !!fallingLetter;
-    const letter = cell || (fallingLetter ? fallingLetter.letter : null);
-    
-    // Don't render empty cells
-    if (!letter) {
+    return renderGrid.flat().map((cell, index) => {
+      const row = Math.floor(index / 8);
+      const col = index % 8;
+      
+      // Check if this position has a falling letter
+      const fallingLetter = fallingLetters.find(l => l.row === row && l.col === col);
+      const isFalling = !!fallingLetter;
+      const letter = cell || (fallingLetter ? fallingLetter.letter : null);
+      
+      // Don't render empty cells
+      if (!letter) {
+        return (
+          <div
+            key={index}
+            className="grid-cell aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200 relative bg-white/50"
+          />
+        );
+      }
+      
+      // Check if this cell is selected
+      const selectedIndex = selectedCells.findIndex(
+        selected => selected.position.row === row && selected.position.col === col
+      );
+      
+      const isSelected = selectedIndex !== -1;
+      const isSpecial = isSpecialLetter(letter);
+      const specialStyle = isSpecial ? getSpecialLetterStyle(letter) : undefined;
+      
       return (
         <div
           key={index}
-          className="grid-cell aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200 relative bg-white/50"
-        />
+          className={`grid-cell aspect-square border ${isSpecial ? 'border-2' : 'border'} rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200 relative cursor-pointer
+            ${letter ? 'bg-white text-black' : 'bg-white/50'}
+            ${isFalling ? 'bg-purple-100 border-purple-500 text-black' : ''}
+            ${isSelected ? 'selected bg-blue-200 border-blue-500' : ''}
+            ${!isSelected && letter && !isSpecial ? 'hover:bg-gray-100' : ''}`}
+          style={specialStyle}
+          onClick={() => letter && handleCellClick(row, col, letter)}
+        >
+          {letter}
+          {isSelected && (
+            <span className="absolute top-0 right-0 w-5 h-5 flex items-center justify-center bg-blue-500 text-white text-xs rounded-full -mt-2 -mr-2">
+              {selectedIndex + 1}
+            </span>
+          )}
+        </div>
       );
-    }
-    
-    // Check if this cell is selected
-    const selectedIndex = selectedCells.findIndex(
-      selected => selected.position.row === row && selected.position.col === col
-    );
-    
-    const isSelected = selectedIndex !== -1;
-    
-    return (
-      <div
-        key={index}
-        className={`grid-cell aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200 relative cursor-pointer
-          ${letter ? 'bg-white text-black' : 'bg-white/50'}
-          ${isFalling ? 'bg-purple-100 border-purple-500 text-black' : ''}
-          ${isSelected ? 'selected bg-blue-200 border-blue-500' : ''}
-          ${!isSelected && letter ? 'hover:bg-gray-100' : ''}`}
-        onClick={() => letter && handleCellClick(row, col, letter)}
-      >
-        {letter}
-        {isSelected && (
-          <span className="absolute top-0 right-0 w-5 h-5 flex items-center justify-center bg-blue-500 text-white text-xs rounded-full -mt-2 -mr-2">
-            {selectedIndex + 1}
-          </span>
-        )}
-      </div>
-    );
-  });
-};
+    });
+  };
   
   return (
     <div className="min-h-screen h-screen bg-gray-950 flex flex-col items-center p-4 md:py-6 overflow-hidden">
@@ -453,8 +598,9 @@ const renderGrid = () => {
                 variant="outline" 
                 size="icon" 
                 className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-purple-900 border-gray-700 shadow-md"
+                onClick={() => setShowSpecialLettersModal(true)}
               >
-                <Shuffle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
+                <Zap className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
               </Button>
               <Button 
                 variant="outline" 
@@ -470,12 +616,19 @@ const renderGrid = () => {
                 className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-orange-900 border-gray-700 shadow-md"
                 onClick={() => setGameActive(!gameActive)}
               >
-                <Zap className="h-4 w-4 md:h-5 md:w-5 text-orange-400" />
+                <Shuffle className="h-4 w-4 md:h-5 md:w-5 text-orange-400" />
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
+      
+      {/* Special Letters Modal */}
+      <SpecialLettersModal
+        open={showSpecialLettersModal}
+        onOpenChange={setShowSpecialLettersModal}
+        specialLetters={SPECIAL_LETTERS}
+      />
     </div>
   );
 };
