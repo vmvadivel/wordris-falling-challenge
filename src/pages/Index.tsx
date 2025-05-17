@@ -484,6 +484,7 @@ const Index = () => {
       if (wordBoxRef.current) {
         addShakeAnimation(wordBoxRef.current);
       }
+      clearWord();
       return;
     }
 
@@ -557,7 +558,7 @@ const Index = () => {
       if (wordBoxRef.current) {
         addShakeAnimation(wordBoxRef.current);
       }
-      
+      clearWord();
       highlightCells(positions, false, gridRef.current);
       showWordValidationToast(word, { isValid: false }, 0);
       
