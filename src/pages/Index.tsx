@@ -23,6 +23,7 @@ import {
 } from "@/types/game";
 import SpecialLettersModal from "@/components/SpecialLettersModal";
 import GameOverModal from "@/components/GameOverModal";
+import Footer from "@/components/Footer";
 import { SPECIAL_LETTERS, isSpecialLetter, getSpecialLetterStyle } from "@/utils/specialLetters";
 
 // Generate a random letter A-Z
@@ -832,6 +833,9 @@ const Index = () => {
           ]
         }}
       />
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
