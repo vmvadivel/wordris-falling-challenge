@@ -1,6 +1,6 @@
 
 import React from "react";
-import { X, Clock, Column, Square, CircleDollarSign } from "lucide-react";
+import { X, Clock, Columns, Square, CircleDollarSign } from "lucide-react";
 import {
   Dialog,
   DialogContent,
