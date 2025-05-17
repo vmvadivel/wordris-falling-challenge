@@ -53,7 +53,7 @@ const SpecialLettersModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md md:max-w-lg bg-gray-900 border-gray-800 text-white p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-md md:max-w-lg bg-gray-900 border-gray-800 text-white p-0">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-xl md:text-2xl">Special Letters</DialogTitle>
           <DialogDescription className="text-gray-400">
@@ -61,35 +61,37 @@ const SpecialLettersModal = ({
           </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="h-[50vh] md:h-[60vh] px-6">
-          <div className="flex flex-col gap-3 py-4">
-            {specialLetters.map((item) => (
-              <div
-                key={item.letter}
-                className="flex items-center gap-3 p-3 rounded-md"
-                style={{ backgroundColor: item.backgroundColor }}
-              >
+        <div className="px-6 py-4 h-[50vh] md:h-[60vh]">
+          <ScrollArea className="h-full">
+            <div className="flex flex-col gap-3">
+              {specialLetters.map((item) => (
                 <div
-                  className="h-10 w-10 md:h-12 md:w-12 rounded-md flex items-center justify-center text-xl font-bold border-2 shadow-md relative"
-                  style={{
-                    backgroundColor: item.color,
-                    borderColor: item.borderColor,
-                    color: "#000000",
-                  }}
+                  key={item.letter}
+                  className="flex items-center gap-3 p-3 rounded-md"
+                  style={{ backgroundColor: item.backgroundColor }}
                 >
-                  {item.letter}
-                  <span className="absolute bottom-0 right-0 bg-black/20 rounded-tl-md p-0.5">
-                    {renderIcon(item.icon)}
-                  </span>
+                  <div
+                    className="h-10 w-10 md:h-12 md:w-12 rounded-md flex items-center justify-center text-xl font-bold border-2 shadow-md relative"
+                    style={{
+                      backgroundColor: item.color,
+                      borderColor: item.borderColor,
+                      color: "#000000",
+                    }}
+                  >
+                    {item.letter}
+                    <span className="absolute bottom-0 right-0 bg-black/20 rounded-tl-md p-0.5">
+                      {renderIcon(item.icon)}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-black text-sm md:text-base">{item.name}</h3>
+                    <p className="text-xs md:text-sm text-gray-700">{item.description}</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-black text-sm md:text-base">{item.name}</h3>
-                  <p className="text-xs md:text-sm text-gray-700">{item.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
         
         <div className="p-6 pt-4">
           <DialogClose asChild>

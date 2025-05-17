@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Card, 
@@ -65,6 +64,9 @@ const Index = () => {
   const [timeFreezeTimer, setTimeFreezeTimer] = useState<number | null>(null);
   const [showSpecialLettersModal, setShowSpecialLettersModal] = useState<boolean>(false);
 
+  // Point multiplier state
+  const [pointMultiplier, setPointMultiplier] = useState<number>(1);
+
   // Refs for animation control
   const animationRef = useRef<number | null>(null);
   const lastDropTime = useRef<number>(0);
@@ -117,7 +119,7 @@ const Index = () => {
     const letters = word.split('');
     const specialLettersUsed = letters.filter(isSpecialLetter);
     
-    if (specialLettersUsed.length === 0) return false;
+    if (specialLettersUsed.length === 0) return { hasAppliedEffect: false, scoreMultiplier: 1 };
     
     let scoreMultiplier = 1;
     let hasAppliedEffect = false;
@@ -215,6 +217,39 @@ const Index = () => {
           toast({
             title: "Double Score Activated!",
             description: "Score for this word is doubled",
+            variant: "default",
+            duration: 3000,
+          });
+          hasAppliedEffect = true;
+          break;
+          
+        case 'P': // Point Multiplier for next word
+          setPointMultiplier(3);
+          toast({
+            title: "Point Multiplier Activated!",
+            description: "Your next word will get triple points!",
+            variant: "default",
+            duration: 3000,
+          });
+          hasAppliedEffect = true;
+          break;
+          
+        case 'V': // Vowel Swap
+          // This would need UI implementation to be effective
+          toast({
+            title: "Vowel Swap Activated!",
+            description: "Swap any vowel with another",
+            variant: "default",
+            duration: 3000,
+          });
+          hasAppliedEffect = true;
+          break;
+          
+        case 'Y': // Wildcard
+          // This is applied during word validation
+          toast({
+            title: "Wildcard Activated!",
+            description: "Y can be used as any letter",
             variant: "default",
             duration: 3000,
           });
@@ -394,9 +429,10 @@ const Index = () => {
       const newConsecutiveWords = consecutiveWords + 1;
       const comboBonus = newConsecutiveWords > 1 ? newConsecutiveWords * 5 : 0;
       
-      // Apply score multiplier from special effects if any
-      const effectMultiplier = effects && effects.scoreMultiplier ? effects.scoreMultiplier : 1;
-      const finalScore = (totalScore + comboBonus) * effectMultiplier;
+      // Apply score multiplier from special effects if any and from previous point multiplier if active
+      const effectMultiplier = effects.scoreMultiplier || 1;
+      const currentPointMultiplier = pointMultiplier;
+      const finalScore = (totalScore + comboBonus) * effectMultiplier * currentPointMultiplier;
       
       // Update score
       setScore(prev => prev + finalScore);
@@ -410,6 +446,18 @@ const Index = () => {
         baseScore,
         rarityBonus
       }, newConsecutiveWords);
+      
+      // Apply multiplier notification if it was used
+      if (currentPointMultiplier > 1) {
+        toast({
+          title: "Point Multiplier Applied!",
+          description: `Score multiplied by ${currentPointMultiplier}x`,
+          variant: "default",
+          duration: 3000,
+        });
+        // Reset the point multiplier after use
+        setPointMultiplier(1);
+      }
       
       // Update grid and remove selected cells
       setGrid(prev => getUpdatedGrid(prev, positions));
@@ -522,6 +570,17 @@ const Index = () => {
     });
   };
   
+  // Add point multiplier indicator in the UI if active
+  const renderPointMultiplierIndicator = () => {
+    if (pointMultiplier <= 1) return null;
+    
+    return (
+      <div className="absolute top-2 right-2 bg-purple-800 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse">
+        {pointMultiplier}x Points
+      </div>
+    );
+  };
+  
   return (
     <div className="min-h-screen h-screen bg-gray-950 flex flex-col items-center p-4 md:py-6 overflow-hidden">
       {/* Title Section - Responsive padding and margin */}
@@ -533,7 +592,8 @@ const Index = () => {
       {/* Game Container - Full height with flex grow */}
       <div className="w-full max-w-6xl flex-1 flex flex-col lg:flex-row gap-4 justify-center items-stretch">
         {/* Game Grid - Fluid responsive sizing with min/max constraints and adjusted height */}
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center relative">
+          {renderPointMultiplierIndicator()}
           <div 
             ref={gridRef}
             className="grid grid-cols-8 gap-1 aspect-square w-full h-full max-w-[min(80vw,80vh,650px)] max-h-[min(80vw,80vh,650px)] min-w-[240px] min-h-[240px]"
