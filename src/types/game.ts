@@ -36,3 +36,10 @@ export type SpecialLetterEffect = {
   icon: string;
 };
 
+export type GameStats = {
+  score: number;
+  level: number;
+  highScore: number;
+  wordsFormed: number;
+  timeElapsed: number;
+};

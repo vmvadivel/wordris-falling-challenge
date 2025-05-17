@@ -14,6 +14,7 @@ import { addShakeAnimation, highlightCells } from "@/utils/animationUtils";
 import { showWordValidationToast, showLevelUpToast } from "@/utils/toastUtils";
 import { Cell, GameGrid, Position, FallingLetter, SelectedCell } from "@/types/game";
 import SpecialLettersModal from "@/components/SpecialLettersModal";
+import GameOverModal from "@/components/GameOverModal";
 import { SPECIAL_LETTERS, isSpecialLetter, getSpecialLetterStyle } from "@/utils/specialLetters";
 
 // Generate a random letter A-Z
@@ -66,13 +67,27 @@ const Index = () => {
 
   // Point multiplier state
   const [pointMultiplier, setPointMultiplier] = useState<number>(1);
-
+  
+  // Game over state
+  const [isGameOver, setIsGameOver] = useState<boolean>(false);
+  const [wordsFormed, setWordsFormed] = useState<number>(0);
+  const [gameStartTime, setGameStartTime] = useState<number>(Date.now());
+  const [timeElapsed, setTimeElapsed] = useState<number>(0);
+  
+  // Time challenge states
+  const [timeSinceLastWord, setTimeSinceLastWord] = useState<number>(0);
+  
   // Refs for animation control
   const animationRef = useRef<number | null>(null);
   const lastDropTime = useRef<number>(0);
   const dropInterval = useRef<number>(800); // Drop speed in milliseconds
   const gridRef = useRef<HTMLDivElement>(null);
   const wordBoxRef = useRef<HTMLDivElement>(null);
+  
+  // Calculate max time between words based on level
+  const getMaxTimeBetweenWords = (): number => {
+    return Math.max(10, 30 - ((level - 1) * 5));
+  };
   
   // Function to check if a column is available for spawning
   const isColumnAvailable = (col: number): boolean => {
@@ -261,6 +276,31 @@ const Index = () => {
     return { hasAppliedEffect, scoreMultiplier };
   };
   
+  // Check if game should end due to grid overflow
+  const checkGridOverflow = (): boolean => {
+    // Check if any letter in the top row is filled
+    return grid[0].some(cell => cell !== null);
+  };
+  
+  // Check if game should end due to time between words
+  const checkTimeBetweenWords = (): boolean => {
+    if (level <= 1) return false; // Only apply after level 1
+    return timeSinceLastWord >= getMaxTimeBetweenWords();
+  };
+  
+  // End game and show game over screen
+  const endGame = () => {
+    setGameActive(false);
+    setIsGameOver(true);
+    setTimeElapsed(Math.floor((Date.now() - gameStartTime) / 1000));
+    
+    // Cancel any active animations
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+  };
+  
   // Game loop with requestAnimationFrame for smooth animation
   const gameLoop = (timestamp: number) => {
     if (!gameActive || timeFreeze) return;
@@ -269,6 +309,15 @@ const Index = () => {
 
     if (elapsed > dropInterval.current) {
       lastDropTime.current = timestamp;
+
+      // Increment time since last word
+      setTimeSinceLastWord(prev => prev + (dropInterval.current / 1000));
+      
+      // Check if we should end the game due to word timing
+      if (checkTimeBetweenWords()) {
+        endGame();
+        return;
+      }
 
       setFallingLetters(prevLetters => {
         let updatedLetters: FallingLetter[] = [];
@@ -292,6 +341,11 @@ const Index = () => {
             });
             return newGrid;
           });
+          
+          // Check for game over due to grid overflow after letters land
+          if (checkGridOverflow()) {
+            setTimeout(() => endGame(), 100);
+          }
         }
 
         // When letters move, update any selections involving falling letters
@@ -346,7 +400,7 @@ const Index = () => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [gameActive, grid, fallingLetters, timeFreeze]);
+  }, [gameActive, grid, fallingLetters, timeFreeze, timeSinceLastWord]);
   
   // Update drop speed based on level
   useEffect(() => {
@@ -387,6 +441,12 @@ const Index = () => {
     setConsecutiveWords(0);
     setGameActive(true);
     setTimeFreeze(false);
+    setIsGameOver(false);
+    setWordsFormed(0);
+    setGameStartTime(Date.now());
+    setTimeElapsed(0);
+    setTimeSinceLastWord(0);
+    
     if (timeFreezeTimer !== null) {
       clearTimeout(timeFreezeTimer);
       setTimeFreezeTimer(null);
@@ -437,6 +497,10 @@ const Index = () => {
       // Update score
       setScore(prev => prev + finalScore);
       setConsecutiveWords(newConsecutiveWords);
+      setWordsFormed(prev => prev + 1);
+      
+      // Reset time since last word when a valid word is submitted
+      setTimeSinceLastWord(0);
       
       // Show validation feedback
       highlightCells(positions, true, gridRef.current);
@@ -581,6 +645,11 @@ const Index = () => {
     );
   };
   
+  // Handle game over modal closing
+  const handleGameOverClose = () => {
+    setIsGameOver(false);
+  };
+  
   return (
     <div className="min-h-screen h-screen bg-gray-950 flex flex-col items-center p-4 md:py-6 overflow-hidden">
       {/* Title Section - Responsive padding and margin */}
@@ -651,6 +720,30 @@ const Index = () => {
               <p className="text-xs text-gray-400">High Score</p>
               <p className="text-xl font-semibold text-white">{highScore}</p>
             </div>
+            
+            {/* Time since last word */}
+            {level > 1 && (
+              <div className="bg-gray-800 rounded-lg p-2 flex flex-col items-center">
+                <p className="text-xs text-gray-400">Time to form word</p>
+                <div className="w-full bg-gray-700 h-2 rounded-full mt-1 overflow-hidden">
+                  <div 
+                    className={`h-full transition-all duration-500 ease-linear ${
+                      timeSinceLastWord > getMaxTimeBetweenWords() * 0.7 
+                        ? "bg-red-500" 
+                        : timeSinceLastWord > getMaxTimeBetweenWords() * 0.4 
+                        ? "bg-yellow-500" 
+                        : "bg-green-500"
+                    }`}
+                    style={{ 
+                      width: `${Math.min(100, (timeSinceLastWord / getMaxTimeBetweenWords()) * 100)}%` 
+                    }}
+                  ></div>
+                </div>
+                <p className="text-xs mt-1 text-gray-300">
+                  {Math.max(0, Math.ceil(getMaxTimeBetweenWords() - timeSinceLastWord))}s left
+                </p>
+              </div>
+            )}
 
             {/* Action buttons moved up and horizontally aligned */}
             <div className="flex justify-center gap-3 pb-1 md:pb-2">
@@ -688,6 +781,20 @@ const Index = () => {
         open={showSpecialLettersModal}
         onOpenChange={setShowSpecialLettersModal}
         specialLetters={SPECIAL_LETTERS}
+      />
+      
+      {/* Game Over Modal */}
+      <GameOverModal 
+        isOpen={isGameOver} 
+        onClose={handleGameOverClose}
+        onRestart={resetGame}
+        stats={{
+          score,
+          level,
+          highScore,
+          wordsFormed,
+          timeElapsed
+        }}
       />
     </div>
   );
