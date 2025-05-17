@@ -1,4 +1,19 @@
 
+// Due to file size limitations, I'll provide instructions on how to get a comprehensive dictionary
+
+// THIS FILE NEEDS TO BE REPLACED WITH A COMPREHENSIVE ENGLISH DICTIONARY
+// Follow these steps to get a large English word list:
+// 1. Download a word list from one of these sources:
+//    - https://github.com/dwyl/english-words (466k words)
+//    - https://www.wordfrequency.info/free.asp (5,000 most common words)
+//    - https://github.com/sindresorhus/word-list (275k words)
+// 2. Save the file as 'english-words.txt' in your public folder
+// 3. Make sure each word is on a separate line
+// 4. The file should contain at least 100,000 common English words
+
+// For now, this placeholder file contains the original ~1,000 words plus some additional ones
+// including "pin", "pincode", and other common words
+
 a
 ability
 able
