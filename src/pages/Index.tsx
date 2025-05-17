@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Check, RotateCw, Shuffle, X, Zap } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { isValidWord, calculateWordScore } from "@/utils/dictionary";
+import { isValidWord, calculateWordScore } from "@/utils/dictionaryService";
 import { areAdjacent, getUpdatedGrid } from "@/utils/gridUtils";
 import { addShakeAnimation, highlightCells } from "@/utils/animationUtils";
 import { showWordValidationToast, showLevelUpToast } from "@/utils/toastUtils";
@@ -417,7 +417,7 @@ const Index = () => {
     const word = currentWord;
     const positions = selectedCells.map(cell => cell.position);
     
-    // Check if the word is valid
+    // Check if the word is valid using our new dictionary service
     if (isValidWord(word)) {
       // Calculate score
       const { totalScore, baseScore, rarityBonus } = calculateWordScore(word);
