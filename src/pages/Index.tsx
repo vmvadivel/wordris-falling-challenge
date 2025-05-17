@@ -416,7 +416,7 @@ const Index = () => {
   
   // Update drop speed based on level
   useEffect(() => {
-    dropInterval.current = Math.max(200, 800 - (level - 1) * 100);
+    dropInterval.current = Math.max(200, 800 - (level - 1) * 80);
   }, [level]);
   
   // Check if score triggers a level up
