@@ -17,6 +17,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { SpecialLetterEffect } from "@/types/game";
 
 type SpecialLettersModalProps = {
@@ -52,45 +53,51 @@ const SpecialLettersModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-gray-900 border-gray-800 text-white">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">Special Letters</DialogTitle>
+      <DialogContent className="sm:max-w-md md:max-w-lg bg-gray-900 border-gray-800 text-white p-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-0">
+          <DialogTitle className="text-xl md:text-2xl">Special Letters</DialogTitle>
           <DialogDescription className="text-gray-400">
             Special letters activate powerful effects when used in words
           </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-3 py-3 max-h-[60vh] overflow-y-auto pr-2">
-          {specialLetters.map((item) => (
-            <div
-              key={item.letter}
-              className="flex items-center gap-3 p-3 rounded-md"
-              style={{ backgroundColor: item.backgroundColor }}
-            >
+        
+        <ScrollArea className="h-[50vh] md:h-[60vh] px-6">
+          <div className="flex flex-col gap-3 py-4">
+            {specialLetters.map((item) => (
               <div
-                className="h-12 w-12 rounded-md flex items-center justify-center text-xl font-bold border-2 shadow-md relative"
-                style={{
-                  backgroundColor: item.color,
-                  borderColor: item.borderColor,
-                  color: "#000000", // Making text black for better contrast
-                }}
+                key={item.letter}
+                className="flex items-center gap-3 p-3 rounded-md"
+                style={{ backgroundColor: item.backgroundColor }}
               >
-                {item.letter}
-                <span className="absolute bottom-0 right-0 bg-black/20 rounded-tl-md p-0.5">
-                  {renderIcon(item.icon)}
-                </span>
+                <div
+                  className="h-10 w-10 md:h-12 md:w-12 rounded-md flex items-center justify-center text-xl font-bold border-2 shadow-md relative"
+                  style={{
+                    backgroundColor: item.color,
+                    borderColor: item.borderColor,
+                    color: "#000000",
+                  }}
+                >
+                  {item.letter}
+                  <span className="absolute bottom-0 right-0 bg-black/20 rounded-tl-md p-0.5">
+                    {renderIcon(item.icon)}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-black text-sm md:text-base">{item.name}</h3>
+                  <p className="text-xs md:text-sm text-gray-700">{item.description}</p>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-black">{item.name}</h3>
-                <p className="text-sm text-gray-700">{item.description}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        </ScrollArea>
+        
+        <div className="p-6 pt-4">
+          <DialogClose asChild>
+            <Button className="w-full bg-gray-800 hover:bg-gray-700">
+              Got it
+            </Button>
+          </DialogClose>
         </div>
-        <DialogClose asChild>
-          <Button className="w-full bg-gray-800 hover:bg-gray-700">
-            Got it
-          </Button>
-        </DialogClose>
       </DialogContent>
     </Dialog>
   );
