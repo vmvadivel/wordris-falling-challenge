@@ -2,9 +2,12 @@
 // Dictionary service to provide efficient word validation
 // Uses an English word list with over 370,000 words
 
-// Import the dictionary module and explicitly extract commonWords and other exports
+// Import the dictionary module and explicitly extract what's exported
 import dictionaryModule from './dictionary';
-const { isValidWord: originalValidator, calculateWordScore, letterRarityPoints, commonWords } = dictionaryModule;
+const { isValidWord: originalValidator, calculateWordScore, letterRarityPoints } = dictionaryModule;
+
+// Access commonWords through the default export - this type-checks correctly
+const commonWords = 'commonWords' in dictionaryModule ? dictionaryModule.commonWords : new Set<string>();
 
 // We'll use a trie data structure for efficient word lookups
 class TrieNode {
@@ -82,7 +85,7 @@ class DictionaryTrie {
       const words = text.split('\n').filter(word => word.trim().length > 0);
       
       // Also add our existing common words to ensure compatibility
-      if (commonWords) {
+      if (commonWords && typeof commonWords !== 'undefined') {
         // Convert Set to array if needed
         const commonWordsArray = Array.isArray(commonWords) 
           ? commonWords 
@@ -103,7 +106,7 @@ class DictionaryTrie {
     } catch (error) {
       console.error('Error loading dictionary:', error);
       // Fallback to the original dictionary if loading fails
-      if (commonWords) {
+      if (commonWords && typeof commonWords !== 'undefined') {
         // Convert Set to array if needed
         const commonWordsArray = Array.isArray(commonWords) 
           ? commonWords 
