@@ -38,6 +38,33 @@ export const SPECIAL_LETTERS: SpecialLetterEffect[] = [
     backgroundColor: "#dcfce7", // Light green bg with better contrast
     icon: "circle-dollar-sign",
   },
+  {
+    letter: "V",
+    name: "Vowel Swap", 
+    description: "Swap any vowel with another",
+    color: "#a5b4fc", // Bright indigo
+    borderColor: "#4f46e5", // Strong indigo border
+    backgroundColor: "#e0e7ff", // Light indigo bg
+    icon: "circle-fading-plus",
+  },
+  {
+    letter: "Y",
+    name: "Wildcard",
+    description: "Acts as any letter you need",
+    color: "#f9a8d4", // Bright pink
+    borderColor: "#db2777", // Strong pink border
+    backgroundColor: "#fce7f3", // Light pink bg
+    icon: "circle-fading-arrow-up",
+  },
+  {
+    letter: "P",
+    name: "Point Multiplier",
+    description: "Triple points for the next word",
+    color: "#c4b5fd", // Bright purple
+    borderColor: "#8b5cf6", // Strong purple border
+    backgroundColor: "#ede9fe", // Light purple bg
+    icon: "circle-dollar-sign",
+  },
 ];
 
 // Check if a letter is special
