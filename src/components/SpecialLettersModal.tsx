@@ -54,16 +54,16 @@ const SpecialLettersModal = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md md:max-w-lg bg-gray-900 border-gray-800 text-white p-0">
-        <DialogHeader className="p-6 pb-0">
+        <DialogHeader className="p-6 pb-2">
           <DialogTitle className="text-xl md:text-2xl">Special Letters</DialogTitle>
           <DialogDescription className="text-gray-400">
             Special letters activate powerful effects when used in words
           </DialogDescription>
         </DialogHeader>
         
-        <div className="px-6 py-4 h-[50vh] md:h-[60vh]">
-          <ScrollArea className="h-full">
-            <div className="flex flex-col gap-3">
+        <div className="px-6 py-3">
+          <ScrollArea className="pr-4" style={{ height: 'auto', maxHeight: '60vh' }}>
+            <div className="flex flex-col gap-3 pb-1">
               {specialLetters.map((item) => (
                 <div
                   key={item.letter}
@@ -93,7 +93,7 @@ const SpecialLettersModal = ({
           </ScrollArea>
         </div>
         
-        <div className="p-6 pt-4">
+        <div className="p-6 pt-3">
           <DialogClose asChild>
             <Button className="w-full bg-gray-800 hover:bg-gray-700">
               Got it
