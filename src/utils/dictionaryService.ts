@@ -2,6 +2,10 @@
 // Dictionary service to provide efficient word validation
 // Uses an English word list with over 370,000 words
 
+// Import the dictionary module and explicitly extract commonWords and other exports
+import dictionaryModule from './dictionary';
+const { isValidWord: originalValidator, calculateWordScore, letterRarityPoints, commonWords } = dictionaryModule;
+
 // We'll use a trie data structure for efficient word lookups
 class TrieNode {
   children: Map<string, TrieNode>;
@@ -78,12 +82,18 @@ class DictionaryTrie {
       const words = text.split('\n').filter(word => word.trim().length > 0);
       
       // Also add our existing common words to ensure compatibility
-      const { commonWords } = await import('./dictionary');
-      commonWords.forEach(word => {
-        if (!words.includes(word)) {
-          words.push(word);
-        }
-      });
+      if (commonWords) {
+        // Convert Set to array if needed
+        const commonWordsArray = Array.isArray(commonWords) 
+          ? commonWords 
+          : Array.from(commonWords);
+          
+        commonWordsArray.forEach(word => {
+          if (!words.includes(word)) {
+            words.push(word);
+          }
+        });
+      }
       
       // Build the trie
       words.forEach(word => this.insert(word.trim()));
@@ -93,9 +103,15 @@ class DictionaryTrie {
     } catch (error) {
       console.error('Error loading dictionary:', error);
       // Fallback to the original dictionary if loading fails
-      const { commonWords } = await import('./dictionary');
-      commonWords.forEach(word => this.insert(word));
-      console.log(`Fallback dictionary loaded with ${this.wordCount} words`);
+      if (commonWords) {
+        // Convert Set to array if needed
+        const commonWordsArray = Array.isArray(commonWords) 
+          ? commonWords 
+          : Array.from(commonWords);
+        
+        commonWordsArray.forEach(word => this.insert(word));
+        console.log(`Fallback dictionary loaded with ${this.wordCount} words`);
+      }
       this.loaded = true;
     } finally {
       this.loading = false;
@@ -119,11 +135,13 @@ export const isValidWordAsync = async (word: string): Promise<boolean> => {
 export const isValidWord = (word: string): boolean => {
   if (!dictionaryTrie.loaded) {
     // If dictionary isn't loaded yet, use the original implementation as fallback
-    const { isValidWord: originalValidator } = require('./dictionary');
     return originalValidator(word);
   }
   return dictionaryTrie.search(word);
 };
+
+// Re-export the calculateWordScore function from the dictionary module
+export { calculateWordScore, letterRarityPoints };
 
 // Load the dictionary when the module is imported
 dictionaryTrie.loadDictionary().catch(console.error);
@@ -131,5 +149,6 @@ dictionaryTrie.loadDictionary().catch(console.error);
 export default {
   isValidWord,
   isValidWordAsync,
+  calculateWordScore,
   getWordCount: () => dictionaryTrie.wordCount
 };
