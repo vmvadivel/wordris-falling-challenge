@@ -6,36 +6,36 @@ export const SPECIAL_LETTERS: SpecialLetterEffect[] = [
     letter: "Q",
     name: "Time Freeze",
     description: "Freezes falling letters for 5 seconds",
-    color: "#e0f2fe", // Light blue
-    borderColor: "#7dd3fc", // Blue-400
-    backgroundColor: "#e0f7fe", // Light blue bg
+    color: "#93c5fd", // Brighter blue
+    borderColor: "#3b82f6", // Strong blue border
+    backgroundColor: "#dbeafe", // Light blue bg with better contrast
     icon: "clock",
   },
   {
     letter: "Z",
     name: "Column Clear",
     description: "Clears all letters in the same column",
-    color: "#fee2e2", // Light red
-    borderColor: "#fca5a5", // Red-400
-    backgroundColor: "#fee2e2", // Light red bg
-    icon: "column",
+    color: "#fca5a5", // Brighter red
+    borderColor: "#ef4444", // Strong red border
+    backgroundColor: "#fee2e2", // Light red bg with better contrast
+    icon: "columns",
   },
   {
     letter: "X",
     name: "Area Clear",
     description: "Clears all 8 adjacent tiles",
-    color: "#fef9c3", // Light yellow
-    borderColor: "#fde047", // Yellow-400
-    backgroundColor: "#fef9c3", // Light yellow bg
+    color: "#fcd34d", // Brighter yellow
+    borderColor: "#f59e0b", // Strong amber border
+    backgroundColor: "#fef3c7", // Light yellow bg with better contrast
     icon: "square",
   },
   {
     letter: "J",
     name: "Double Score",
     description: "Doubles the score for this word",
-    color: "#dcfce7", // Light green
-    borderColor: "#86efac", // Green-400
-    backgroundColor: "#dcfce7", // Light green bg
+    color: "#86efac", // Brighter green
+    borderColor: "#22c55e", // Strong green border
+    backgroundColor: "#dcfce7", // Light green bg with better contrast
     icon: "circle-dollar-sign",
   },
 ];

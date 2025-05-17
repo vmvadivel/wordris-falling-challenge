@@ -40,10 +40,11 @@ const SpecialLettersModal = ({
               style={{ backgroundColor: item.backgroundColor }}
             >
               <div
-                className={`h-10 w-10 rounded flex items-center justify-center text-lg font-bold border-2`}
+                className="h-12 w-12 rounded-md flex items-center justify-center text-xl font-bold border-2 shadow-md"
                 style={{
                   backgroundColor: item.color,
                   borderColor: item.borderColor,
+                  color: "#000000", // Making text black for better contrast
                 }}
               >
                 {item.letter}
