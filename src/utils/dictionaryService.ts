@@ -25,18 +25,12 @@ class DictionaryTrie {
   loaded: boolean;
   loading: boolean;
   wordCount: number;
-  additionalWords: Set<string>;
 
   constructor() {
     this.root = new TrieNode();
     this.loaded = false;
     this.loading = false;
     this.wordCount = 0;
-    // Add some additional common words that might be missing
-    this.additionalWords = new Set([
-      'pin', 'pins', 'pincode', 'fasting', 'fast', 'dictionary',
-      'code', 'coding', 'computer', 'program', 'programming'
-    ]);
   }
 
   // Insert a word into the trie
@@ -60,11 +54,6 @@ class DictionaryTrie {
 
   // Check if a word exists in the trie
   search(word: string): boolean {
-    // Check additionalWords first
-    if (this.additionalWords.has(word.toLowerCase())) {
-      return true;
-    }
-    
     let current = this.root;
     const lowerCaseWord = word.toLowerCase();
 
@@ -112,13 +101,6 @@ class DictionaryTrie {
         }
       }
       
-      // Add additional words from our hardcoded list
-      this.additionalWords.forEach(word => {
-        if (!words.includes(word)) {
-          words.push(word);
-        }
-      });
-      
       // Build the trie
       words.forEach(word => this.insert(word.trim().toLowerCase()));
       
@@ -143,9 +125,6 @@ class DictionaryTrie {
         }
       }
       
-      // Add the additional words in the fallback case too
-      this.additionalWords.forEach(word => this.insert(word));
-      
       console.log(`Fallback dictionary loaded with ${this.wordCount} words`);
       this.loaded = true;
     } finally {
@@ -169,10 +148,6 @@ export const isValidWordAsync = async (word: string): Promise<boolean> => {
 // Uses the existing dictionary as fallback if the new one isn't loaded yet
 export const isValidWord = (word: string): boolean => {
   if (!dictionaryTrie.loaded) {
-    // Check additionalWords first
-    if (dictionaryTrie.additionalWords.has(word.toLowerCase())) {
-      return true;
-    }
     // If dictionary isn't loaded yet, use the original implementation as fallback
     return originalValidator(word);
   }

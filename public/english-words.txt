@@ -1,7 +1,4 @@
 
-# This is a placeholder for the English dictionary file
-# In production, this file will contain over 370,000 English words
-# For now, we'll add a few common words including "fasting" as an example
 a
 ability
 able
@@ -165,6 +162,8 @@ clear
 clearly
 close
 coach
+code
+coding
 cold
 collection
 college
@@ -223,6 +222,7 @@ detail
 determine
 develop
 development
+dictionary
 die
 difference
 different
@@ -297,8 +297,8 @@ fall
 family
 far
 fast
-father
 fasting
+father
 fear
 federal
 feel
@@ -633,6 +633,9 @@ physical
 pick
 picture
 piece
+pin
+pincode
+pins
 place
 plan
 plant
@@ -669,6 +672,7 @@ production
 professional
 professor
 program
+programming
 project
 property
 protect
