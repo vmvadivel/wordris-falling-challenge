@@ -12,7 +12,15 @@ import { isValidWord, calculateWordScore } from "@/utils/dictionaryService";
 import { areAdjacent, getUpdatedGrid } from "@/utils/gridUtils";
 import { addShakeAnimation, highlightCells } from "@/utils/animationUtils";
 import { showWordValidationToast, showLevelUpToast } from "@/utils/toastUtils";
-import { Cell, GameGrid, Position, FallingLetter, SelectedCell } from "@/types/game";
+import { 
+  Cell, 
+  GameGrid, 
+  Position, 
+  FallingLetter, 
+  SelectedCell, 
+  POINTS_PER_LEVEL, 
+  MIN_LEVEL_FOR_TIME_CHALLENGE 
+} from "@/types/game";
 import SpecialLettersModal from "@/components/SpecialLettersModal";
 import GameOverModal from "@/components/GameOverModal";
 import { SPECIAL_LETTERS, isSpecialLetter, getSpecialLetterStyle } from "@/utils/specialLetters";
@@ -86,7 +94,9 @@ const Index = () => {
   
   // Calculate max time between words based on level
   const getMaxTimeBetweenWords = (): number => {
-    return Math.max(10, 30 - ((level - 1) * 5));
+    // Only applicable from level MIN_LEVEL_FOR_TIME_CHALLENGE onwards
+    if (level < MIN_LEVEL_FOR_TIME_CHALLENGE) return Infinity;
+    return Math.max(10, 30 - ((level - MIN_LEVEL_FOR_TIME_CHALLENGE) * 5));
   };
   
   // Function to check if a column is available for spawning
@@ -284,7 +294,8 @@ const Index = () => {
   
   // Check if game should end due to time between words
   const checkTimeBetweenWords = (): boolean => {
-    if (level <= 1) return false; // Only apply after level 1
+    // Only apply time challenge after reaching MIN_LEVEL_FOR_TIME_CHALLENGE
+    if (level < MIN_LEVEL_FOR_TIME_CHALLENGE) return false;
     return timeSinceLastWord >= getMaxTimeBetweenWords();
   };
   
@@ -409,7 +420,7 @@ const Index = () => {
   
   // Check if score triggers a level up
   useEffect(() => {
-    if (score >= level * 100) {
+    if (score >= level * POINTS_PER_LEVEL) {
       setLevel(prev => {
         const newLevel = prev + 1;
         showLevelUpToast(newLevel);
@@ -721,8 +732,8 @@ const Index = () => {
               <p className="text-xl font-semibold text-white">{highScore}</p>
             </div>
             
-            {/* Time since last word */}
-            {level > 1 && (
+            {/* Time since last word - only show after level MIN_LEVEL_FOR_TIME_CHALLENGE */}
+            {level >= MIN_LEVEL_FOR_TIME_CHALLENGE && (
               <div className="bg-gray-800 rounded-lg p-2 flex flex-col items-center">
                 <p className="text-xs text-gray-400">Time to form word</p>
                 <div className="w-full bg-gray-700 h-2 rounded-full mt-1 overflow-hidden">
