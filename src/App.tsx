@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Footer from "./components/Footer";
+// Remove footer import as we'll use it only in Index.tsx
 
 const queryClient = new QueryClient();
 
@@ -24,7 +24,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
-          <Footer />
+          {/* Remove Footer from here - it's already in Index.tsx */}
         </BrowserRouter>
       </div>
     </TooltipProvider>
