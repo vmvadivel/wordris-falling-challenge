@@ -1,3 +1,4 @@
+
 import { Position } from "@/types/game";
 
 // Check if two cells are adjacent (horizontally, vertically, or diagonally)
@@ -111,3 +112,16 @@ export const canLetterFall = (
   // This prevents letters from getting stuck because they see another falling letter below
   return canLetterFall(grid, row + 1, col, fallingLetters.filter(l => l.id !== letterBelow.id), currentLetterId);
 };
+
+// Check if a game over should occur due to grid overflow
+// Fixed to better detect when the top row is actually full
+export const isGridFull = (grid: string[][]): boolean => {
+  // Game is over only when the entire top row is filled or has falling letters
+  for (let col = 0; col < grid[0].length; col++) {
+    if (grid[0][col] === null) {
+      return false; // Found at least one empty space in the top row
+    }
+  }
+  return true; // Top row is completely full
+}
+

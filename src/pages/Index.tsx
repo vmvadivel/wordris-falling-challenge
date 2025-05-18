@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Card, 
@@ -10,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Check, RotateCw, Shuffle, X, Zap } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { isValidWord, calculateWordScore } from "@/utils/dictionaryService";
-import { areAdjacent, getUpdatedGrid, isValidPosition, canLetterFall } from "@/utils/gridUtils";
+import { areAdjacent, getUpdatedGrid, isValidPosition, canLetterFall, isGridFull } from "@/utils/gridUtils";
 import { addShakeAnimation, highlightCells } from "@/utils/animationUtils";
 import { showWordValidationToast, showLevelUpToast } from "@/utils/toastUtils";
 import { 
@@ -290,10 +289,8 @@ const Index = () => {
   
   // Check if game should end due to grid overflow
   const checkGridOverflow = (): boolean => {
-    // Check if every column in the top row is filled
-    // Game only ends if there's nowhere for new letters to drop
-    const availableColumns = getAvailableColumns();
-    return availableColumns.length === 0;
+    // Check if all columns in the top row are filled
+    return isGridFull(grid);
   };
   
   // Check if game should end due to time between words
@@ -338,7 +335,7 @@ const Index = () => {
         let updatedLetters: FallingLetter[] = [];
         let landedLetters: FallingLetter[] = [];
 
-        // First, identify which letters can move down (using our new utility)
+        // First, identify which letters can move down
         const movableLetters = new Set<string>();
         prevLetters.forEach(l => {
           if (canLetterFall(grid, l.row, l.col, prevLetters, l.id)) {
@@ -365,9 +362,9 @@ const Index = () => {
             return newGrid;
           });
           
-          // Check for game over due to grid overflow 
-          // Only end the game if there are no available columns for new letters
+          // Check for game over after the grid is updated
           setTimeout(() => {
+            // Check if grid is full after letters have landed
             if (checkGridOverflow()) {
               endGame();
             }
