@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Trophy, RotateCw, Share2, X } from "lucide-react";
 import {
@@ -15,6 +14,7 @@ interface GameOverModalProps {
   onClose: () => void;
   onRestart: () => void;
   stats: GameStats;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const GameOverModal: React.FC<GameOverModalProps> = ({
@@ -22,6 +22,7 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
   onClose,
   onRestart,
   stats,
+  onOpenChange,
 }) => {
   // Format time as mm:ss
   const formatTime = (seconds: number): string => {
@@ -94,8 +95,21 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
 
   const achievements = getAchievements();
 
+  // Handle dialog close and restart game
+  const handleDialogChange = (open: boolean) => {
+    // When dialog is closed (open=false), restart the game
+    if (!open) {
+      onRestart();
+    }
+    
+    // Call the parent's onOpenChange handler if provided
+    if (onOpenChange) {
+      onOpenChange(open);
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleDialogChange}>
       <DialogContent className="bg-white text-black w-[90%] max-w-md mx-auto p-0 overflow-hidden rounded-xl">
         <DialogHeader className="pt-8 pb-2 px-6 relative">
           <button 
