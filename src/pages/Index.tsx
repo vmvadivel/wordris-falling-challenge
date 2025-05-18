@@ -797,30 +797,30 @@ if (landedLetters.length > 0) {
             )}
 
             {/* Action buttons moved up and horizontally aligned */}
-            <div className="flex justify-center gap-3 pb-1 md:pb-2">
+            <div className="flex justify-center gap-3 pb-4 md:pb-4 mt-2">
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-purple-900 border-gray-700 shadow-md"
+                className="h-10 w-10 md:h-12 md:w-12 bg-gray-800 hover:bg-purple-900 border-gray-700 shadow-md"
                 onClick={() => setShowSpecialLettersModal(true)}
               >
-                <Zap className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
+                <Zap className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
               </Button>
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-blue-900 border-gray-700 shadow-md"
+                className="h-10 w-10 md:h-12 md:w-12 bg-gray-800 hover:bg-blue-900 border-gray-700 shadow-md"
                 onClick={resetGame}
               >
-                <RotateCw className="h-4 w-4 md:h-5 md:w-5 text-blue-400" />
+                <RotateCw className="h-5 w-5 md:h-6 md:w-6 text-blue-400" />
               </Button>
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="h-9 w-9 md:h-10 md:w-10 bg-gray-800 hover:bg-orange-900 border-gray-700 shadow-md"
+                className="h-10 w-10 md:h-12 md:w-12 bg-gray-800 hover:bg-orange-900 border-gray-700 shadow-md"
                 onClick={() => setGameActive(!gameActive)}
               >
-                <Shuffle className="h-4 w-4 md:h-5 md:w-5 text-orange-400" />
+                <Shuffle className="h-5 w-5 md:h-6 md:w-6 text-orange-400" />
               </Button>
             </div>
           </CardContent>
