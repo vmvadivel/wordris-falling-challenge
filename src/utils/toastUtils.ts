@@ -20,7 +20,8 @@ export const showWordValidationToast = (
   
   // For valid words, only show toasts for special occasions
   
-  // Consecutive word bonus (combo)
+  // Consecutive word bonus (combo) - Commented out as requested
+  /*
   if (consecutiveWords > 1) {
     toast({
       title: "Combo Bonus!",
@@ -29,8 +30,10 @@ export const showWordValidationToast = (
       duration: 2000,
     });
   }
+  */
   
-  // For exceptionally high scoring words (over 15 points)
+  // For exceptionally high scoring words (over 15 points) - Commented out as requested
+  /*
   if (result.score > 15) {
     toast({
       title: "Great Word!",
@@ -39,6 +42,7 @@ export const showWordValidationToast = (
       duration: 3000,
     });
   }
+  */
 };
 
 // Show level up toast
