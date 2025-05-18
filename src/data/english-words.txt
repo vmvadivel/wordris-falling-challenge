@@ -1,0 +1,29 @@
+
+// We would normally copy the contents of public/english-words.txt here
+// For demonstration purposes, we'll just include a small sample
+apple
+banana
+cat
+dog
+elephant
+fox
+game
+house
+internet
+jungle
+knowledge
+love
+mouse
+never
+orange
+people
+queen
+rabbit
+sun
+tree
+umbrella
+violet
+water
+xylophone
+yellow
+zebra

@@ -4,6 +4,9 @@
  * Implements an efficient trie-based dictionary structure for word lookups
  */
 
+// Import the dictionary file directly
+import dictionaryData from '../data/english-words.txt?raw';
+
 // Compressed trie node structure (more memory efficient than class instances)
 interface CompressedTrieNode {
   [key: string]: CompressedTrieNode | boolean;
@@ -46,12 +49,10 @@ export const loadCompressedDictionary = async (): Promise<void> => {
   
   try {
     console.log('Loading and compressing dictionary...');
-    const response = await fetch('/english-words.txt');
-    if (!response.ok) {
-      throw new Error(`Failed to load dictionary: ${response.status}`);
-    }
     
-    const text = await response.text();
+    // Instead of fetching from public, we use the imported dictionary data
+    const text = dictionaryData;
+    
     // Filter out comment lines and empty lines
     const words = text.split('\n')
       .filter(line => !line.startsWith('//') && line.trim().length > 0);
