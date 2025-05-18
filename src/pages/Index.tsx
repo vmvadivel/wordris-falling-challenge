@@ -663,7 +663,6 @@ if (landedLetters.length > 0) {
           key={index}
           className={`grid-cell aspect-square border ${isSpecial ? 'border-2' : 'border'} rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200 relative cursor-pointer
             ${letter ? 'bg-white text-black' : 'bg-white/50'}
-            ${isFalling ? 'bg-purple-100 border-purple-500 text-black' : ''}
             ${isSelected ? 'selected bg-blue-200 border-blue-500' : ''}
             ${!isSelected && letter && !isSpecial ? 'hover:bg-gray-100' : ''}`}
           style={specialStyle}
