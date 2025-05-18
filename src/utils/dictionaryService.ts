@@ -1,9 +1,15 @@
-
 // Dictionary service to provide efficient word validation
 // Uses an English word list with over 100,000 words
 
 // Import the dictionary module and explicitly extract what's exported
 import dictionaryModule from './dictionary';
+import { 
+  loadCompressedDictionary,
+  isWordInCompressedDictionary, 
+  isPrefixInCompressedDictionary,
+  getCompressedDictionaryStats
+} from './compressedDictionary';
+
 const { isValidWord: originalValidator, calculateWordScore, letterRarityPoints } = dictionaryModule;
 
 // Access commonWords through the default export - this type-checks correctly
@@ -26,12 +32,14 @@ class DictionaryTrie {
   loading: boolean;
   wordCount: number;
   additionalCommonWords: Set<string>;
+  usingCompressedDictionary: boolean;
 
   constructor() {
     this.root = new TrieNode();
     this.loaded = false;
     this.loading = false;
     this.wordCount = 0;
+    this.usingCompressedDictionary = false;
     
     // Add essential common words that should never be missing
     this.additionalCommonWords = new Set([
@@ -77,6 +85,11 @@ class DictionaryTrie {
       return true;
     }
     
+    // If using compressed dictionary, check that first
+    if (this.usingCompressedDictionary) {
+      return isWordInCompressedDictionary(word);
+    }
+    
     let current = this.root;
     const lowerCaseWord = word.toLowerCase().trim();
 
@@ -95,6 +108,11 @@ class DictionaryTrie {
   searchPrefix(prefix: string): boolean {
     if (!prefix || typeof prefix !== 'string') {
       return false;
+    }
+    
+    // If using compressed dictionary, check that first
+    if (this.usingCompressedDictionary) {
+      return isPrefixInCompressedDictionary(prefix);
     }
     
     let current = this.root;
@@ -118,57 +136,18 @@ class DictionaryTrie {
     this.loading = true;
     
     try {
-      console.log('Loading comprehensive dictionary...');
-      const response = await fetch('/english-words.txt');
-      if (!response.ok) {
-        throw new Error(`Failed to load dictionary: ${response.status}`);
-      }
-      
-      const text = await response.text();
-      // Filter out comment lines and empty lines
-      const words = text.split('\n')
-        .filter(line => !line.startsWith('//') && line.trim().length > 0);
-      
-      // Also add our existing common words to ensure compatibility
-      if (commonWords && typeof commonWords !== 'undefined') {
-        if (commonWords instanceof Set) {
-          commonWords.forEach(word => {
-            if (typeof word === 'string' && word.trim().length > 0) {
-              this.insert(word);
-            }
-          });
-        } else if (Array.isArray(commonWords)) {
-          commonWords.forEach(word => {
-            if (typeof word === 'string' && word.trim().length > 0) {
-              this.insert(word);
-            }
-          });
-        }
-      }
+      console.log('Loading compressed dictionary...');
+      // Use the compressed dictionary approach instead
+      await loadCompressedDictionary();
+      this.usingCompressedDictionary = true;
       
       // Add essential common words
       this.additionalCommonWords.forEach(word => this.insert(word));
       
-      // Process the main dictionary in chunks to avoid UI blocking
-      const chunkSize = 5000; // Process 5000 words at a time
-      const processChunk = (startIndex: number) => {
-        const endIndex = Math.min(startIndex + chunkSize, words.length);
-        for (let i = startIndex; i < endIndex; i++) {
-          this.insert(words[i]);
-        }
-        
-        if (endIndex < words.length) {
-          // Schedule next chunk processing with setTimeout to avoid blocking UI
-          setTimeout(() => processChunk(endIndex), 0);
-        } else {
-          // All chunks processed
-          console.log(`Dictionary loaded with ${this.wordCount.toLocaleString()} words`);
-          this.loaded = true;
-        }
-      };
-      
-      // Start processing the first chunk
-      processChunk(0);
+      const stats = getCompressedDictionaryStats();
+      this.wordCount = stats.wordCount;
+      console.log(`Dictionary loaded with ${this.wordCount.toLocaleString()} words`);
+      this.loaded = true;
     } catch (error) {
       console.error('Error loading dictionary:', error);
       // Fallback to the original dictionary if loading fails
@@ -200,6 +179,10 @@ class DictionaryTrie {
   
   // Get dictionary statistics
   getStats(): { loaded: boolean, wordCount: number } {
+    if (this.usingCompressedDictionary) {
+      return getCompressedDictionaryStats();
+    }
+    
     return {
       loaded: this.loaded,
       wordCount: this.wordCount
