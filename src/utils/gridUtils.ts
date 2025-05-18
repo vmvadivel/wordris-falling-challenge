@@ -1,4 +1,3 @@
-
 import { Position } from "@/types/game";
 
 // Check if two cells are adjacent (horizontally, vertically, or diagonally)
@@ -81,4 +80,34 @@ export const getUpdatedGrid = (
   }
   
   return newGrid;
+};
+
+// Determine if a letter can move down, dealing with proper stacking
+export const canLetterFall = (
+  grid: string[][], 
+  row: number, 
+  col: number, 
+  fallingLetters: { row: number; col: number; id: string }[],
+  currentLetterId: string
+): boolean => {
+  // Check grid bounds
+  if (row >= grid.length - 1) {
+    return false; // At bottom of grid
+  }
+  
+  // Check if cell below is empty on the grid
+  if (grid[row + 1][col] !== null) {
+    return false; // Cell below is occupied on the grid
+  }
+  
+  // Check for other falling letters in the position below
+  const letterBelow = fallingLetters.find(l => l.col === col && l.row === row + 1);
+  
+  if (!letterBelow) {
+    return true; // No letter below, free to fall
+  }
+  
+  // If there's a letter below, check if it's also going to fall this frame
+  // This prevents letters from getting stuck because they see another falling letter below
+  return canLetterFall(grid, row + 1, col, fallingLetters.filter(l => l.id !== letterBelow.id), currentLetterId);
 };

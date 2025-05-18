@@ -337,10 +337,18 @@ const Index = () => {
         let updatedLetters: FallingLetter[] = [];
         let landedLetters: FallingLetter[] = [];
 
+        // First, identify which letters can move down (using our new utility)
+        const movableLetters = new Set<string>();
         prevLetters.forEach(l => {
-          const nextRow = l.row + 1;
-          if (nextRow < 8 && grid[nextRow][l.col] === null && !prevLetters.some(fl => fl.col === l.col && fl.row === nextRow)) {
-            updatedLetters.push({ ...l, row: nextRow });
+          if (canLetterFall(grid, l.row, l.col, prevLetters, l.id)) {
+            movableLetters.add(l.id);
+          }
+        });
+
+        // Now move letters that can move, and mark others as landed
+        prevLetters.forEach(l => {
+          if (movableLetters.has(l.id)) {
+            updatedLetters.push({ ...l, row: l.row + 1 });
           } else {
             landedLetters.push(l);
           }
