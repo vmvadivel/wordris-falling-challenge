@@ -358,26 +358,23 @@ const Index = () => {
         });
 
         // Place landed letters on the grid
-        if (landedLetters.length > 0) {
-          console.log("Letters landed:", landedLetters.length);
-          setGrid(oldGrid => {
-            const newGrid = oldGrid.map(row => [...row]);
-            landedLetters.forEach(l => {
-              newGrid[l.row][l.col] = l.letter;
-            });
-            return newGrid;
-          });
-          
-          // Check for game over after the grid is updated
-          setTimeout(() => {
-            // Check if grid is full after letters have landed
-            console.log("Checking for game over after letters landed");
-            if (checkGridOverflow()) {
-              console.log("Grid overflow detected! Calling endGame");
-              endGame();
-            }
-          }, 100);
-        }
+if (landedLetters.length > 0) {
+  console.log("Letters landed:", landedLetters.length);
+  setGrid(oldGrid => {
+    const newGrid = oldGrid.map(row => [...row]);
+    landedLetters.forEach(l => {
+      newGrid[l.row][l.col] = l.letter;
+    });
+
+    // Check grid fullness immediately with updated grid
+    if (isGridFull(newGrid)) {
+      console.log("Grid overflow detected inside setGrid! Calling endGame");
+      endGame();
+    }
+
+    return newGrid;
+  });
+}
 
         // When letters move, update any selections involving falling letters
         if (updatedLetters.length > 0) {
