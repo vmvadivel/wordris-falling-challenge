@@ -4,7 +4,7 @@ import { Link } from "@/components/ui/link";
 
 const Footer = () => {
   return (
-    <footer className="w-full py-3 px-4 bg-gray-900 border-t border-gray-800 sticky bottom-0 z-10">
+    <footer className="w-full py-3 px-4 bg-gray-900 border-t border-gray-800 mt-auto z-10">
       <div className="container flex justify-center items-center">
         <p className="text-sm text-gray-400 hover:text-gray-300 transition-colors">
           Vibe-coded by{" "}
