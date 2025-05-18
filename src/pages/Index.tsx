@@ -441,6 +441,13 @@ const Index = () => {
       }
     };
   }, [timeFreezeTimer]);
+
+  // New useEffect hook to reset game on modal close
+  useEffect(() => {
+  if (!isGameOver) {
+    resetGame();
+  }
+}, [isGameOver]);
   
   // Reset the game
   const resetGame = () => {
