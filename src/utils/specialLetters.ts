@@ -48,15 +48,6 @@ export const SPECIAL_LETTERS: SpecialLetterEffect[] = [
     icon: "circle-fading-plus",
   },
   {
-    letter: "Y",
-    name: "Wildcard",
-    description: "Acts as any letter you need",
-    color: "#f9a8d4", // Bright pink
-    borderColor: "#db2777", // Strong pink border
-    backgroundColor: "#fce7f3", // Light pink bg
-    icon: "circle-fading-arrow-up",
-  },
-  {
     letter: "P",
     name: "Point Multiplier",
     description: "Triple points for the next word",
