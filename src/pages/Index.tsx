@@ -291,7 +291,7 @@ const Index = () => {
   const checkGridOverflow = (): boolean => {
     // Check if all columns in the top row are filled
     const result = isGridFull(grid);
-    console.log("checkGridOverflow called - result:", result);
+    console.log("checkGridOverflow called - result:", result, "Current grid top row:", grid[0]);
     return result;
   };
   
@@ -420,6 +420,7 @@ const Index = () => {
   
   // Start/stop game
   useEffect(() => {
+    console.log("gameActive useEffect triggered - gameActive:", gameActive, "isGameOver:", isGameOver);
     if (gameActive) {
       lastDropTime.current = performance.now();
       animationRef.current = requestAnimationFrame(gameLoop);
@@ -462,15 +463,9 @@ const Index = () => {
     };
   }, [timeFreezeTimer]);
 
-  // New useEffect hook to reset game on modal close
-  useEffect(() => {
-  if (!isGameOver) {
-    resetGame();
-  }
-}, [isGameOver]);
-  
   // Reset the game
   const resetGame = () => {
+    console.log("resetGame called - resetting all game state");
     setGrid(createEmptyGrid());
     setCurrentWord("");
     setSelectedCells([]);
@@ -696,13 +691,14 @@ const Index = () => {
   
 
   // Handle game over modal closing and game restart
-const handleGameOverClose = (open: boolean) => {
-  console.log("handleGameOverClose called with open:", open);
-  setIsGameOver(open);
-  if (!open) {
-    resetGame();
-  }
-};
+  const handleGameOverClose = (open: boolean) => {
+    console.log("handleGameOverClose called with open:", open, "current isGameOver:", isGameOver);
+    setIsGameOver(open);
+    if (!open) {
+      console.log("Modal closed, calling resetGame");
+      resetGame();
+    }
+  };
   
   // Additional tracking stats
   const [lettersPlaced, setLettersPlaced] = useState<number>(0);
