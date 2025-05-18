@@ -439,16 +439,11 @@ if (landedLetters.length > 0) {
   
   // Check if score triggers a level up
   useEffect(() => {
+    // Handle level up
     if (score >= level * POINTS_PER_LEVEL) {
       setLevel(prev => {
         const newLevel = prev + 1;
-        // Level up notification (directly using toast)
-        toast({
-          title: `Level ${newLevel}!`,
-          description: "Speed has increased! New letters are more challenging!",
-          variant: "default",
-          duration: 3000,
-        });
+        // Remove toast notification for level up
         return newLevel;
       });
     }

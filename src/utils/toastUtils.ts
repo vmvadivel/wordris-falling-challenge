@@ -56,4 +56,3 @@ export const showLevelUpToast = (level: number) => {
   });
 };
 */
-
