@@ -289,8 +289,10 @@ const Index = () => {
   
   // Check if game should end due to grid overflow
   const checkGridOverflow = (): boolean => {
-    // Check if any letter in the top row is filled
-    return grid[0].some(cell => cell !== null);
+    // Check if every column in the top row is filled
+    // Game only ends if there's nowhere for new letters to drop
+    const availableColumns = getAvailableColumns();
+    return availableColumns.length === 0;
   };
   
   // Check if game should end due to time between words
@@ -354,10 +356,13 @@ const Index = () => {
             return newGrid;
           });
           
-          // Check for game over due to grid overflow after letters land
-          if (checkGridOverflow()) {
-            setTimeout(() => endGame(), 100);
-          }
+          // Check for game over due to grid overflow 
+          // Only end the game if there are no available columns for new letters
+          setTimeout(() => {
+            if (checkGridOverflow()) {
+              endGame();
+            }
+          }, 100);
         }
 
         // When letters move, update any selections involving falling letters
@@ -391,7 +396,8 @@ const Index = () => {
     }
 
     // Spawn new letter if less than 3 are falling, with a small random chance
-    if (fallingLetters.length < 3 && Math.random() < 0.03) {
+    // Only try to spawn if there are available columns
+    if (fallingLetters.length < 3 && Math.random() < 0.03 && getAvailableColumns().length > 0) {
       spawnNewLetter();
     }
 
