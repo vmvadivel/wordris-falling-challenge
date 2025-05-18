@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Trophy, RotateCw, Share2, X } from "lucide-react";
 import {
   Dialog,
@@ -24,6 +24,11 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
   stats,
   onOpenChange,
 }) => {
+  // Log when props change to track modal visibility
+  useEffect(() => {
+    console.log("GameOverModal received isOpen:", isOpen);
+  }, [isOpen]);
+
   // Format time as mm:ss
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -97,6 +102,8 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
 
   // Handle dialog close and restart game
   const handleDialogChange = (open: boolean) => {
+    console.log("GameOverModal handleDialogChange called with open:", open);
+    
     // When dialog is closed (open=false), restart the game
     if (!open) {
       onRestart();

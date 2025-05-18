@@ -290,7 +290,9 @@ const Index = () => {
   // Check if game should end due to grid overflow
   const checkGridOverflow = (): boolean => {
     // Check if all columns in the top row are filled
-    return isGridFull(grid);
+    const result = isGridFull(grid);
+    console.log("checkGridOverflow called - result:", result);
+    return result;
   };
   
   // Check if game should end due to time between words
@@ -302,6 +304,7 @@ const Index = () => {
   
   // End game and show game over screen
   const endGame = () => {
+    console.log("endGame called - ending the game and showing modal");
     setGameActive(false);
     setIsGameOver(true);
     setTimeElapsed(Math.floor((Date.now() - gameStartTime) / 1000));
@@ -311,6 +314,8 @@ const Index = () => {
       cancelAnimationFrame(animationRef.current);
       animationRef.current = null;
     }
+
+    console.log("Game over state set, isGameOver:", true);
   };
   
   // Game loop with requestAnimationFrame for smooth animation
@@ -354,6 +359,7 @@ const Index = () => {
 
         // Place landed letters on the grid
         if (landedLetters.length > 0) {
+          console.log("Letters landed:", landedLetters.length);
           setGrid(oldGrid => {
             const newGrid = oldGrid.map(row => [...row]);
             landedLetters.forEach(l => {
@@ -365,7 +371,9 @@ const Index = () => {
           // Check for game over after the grid is updated
           setTimeout(() => {
             // Check if grid is full after letters have landed
+            console.log("Checking for game over after letters landed");
             if (checkGridOverflow()) {
+              console.log("Grid overflow detected! Calling endGame");
               endGame();
             }
           }, 100);
@@ -689,6 +697,7 @@ const Index = () => {
 
   // Handle game over modal closing and game restart
 const handleGameOverClose = (open: boolean) => {
+  console.log("handleGameOverClose called with open:", open);
   setIsGameOver(open);
   if (!open) {
     resetGame();
@@ -836,8 +845,14 @@ const handleGameOverClose = (open: boolean) => {
       <GameOverModal 
         isOpen={isGameOver} 
         onOpenChange={handleGameOverClose}
-        onClose={() => setIsGameOver(false)}
-        onRestart={resetGame}
+        onClose={() => {
+          console.log("GameOverModal onClose called");
+          setIsGameOver(false);
+        }}
+        onRestart={() => {
+          console.log("GameOverModal onRestart called");
+          resetGame();
+        }}
         stats={{
           score,
           level,
