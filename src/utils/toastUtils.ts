@@ -45,7 +45,8 @@ export const showWordValidationToast = (
   */
 };
 
-// Show level up toast
+// Show level up toast - Commented out as requested
+/*
 export const showLevelUpToast = (level: number) => {
   toast({
     title: `Level ${level}!`,
@@ -54,3 +55,5 @@ export const showLevelUpToast = (level: number) => {
     duration: 3000,
   });
 };
+*/
+
