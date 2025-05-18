@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { GameStats } from "@/types/game";
@@ -105,9 +106,9 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
   const handleDialogChange = (open: boolean) => {
     console.log("### GameOverModal handleDialogChange called with open:", open);
     
-    // When dialog is closed (open=false), restart the game
+    // Only restart the game when intentionally closing the dialog
     if (!open) {
-      onRestart();
+      onClose();
     }
     
     // Call the parent's onOpenChange handler if provided
@@ -122,6 +123,9 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
     <Dialog open={isOpen} onOpenChange={handleDialogChange}>
       <DialogContent className="bg-white text-black w-[90%] max-w-md mx-auto p-0 overflow-hidden rounded-xl">
         <DialogHeader className="pt-8 pb-2 px-6 relative">
+          <DialogDescription className="sr-only">
+            Game over details and statistics
+          </DialogDescription>
           <button 
             onClick={onClose}
             className="absolute right-4 top-4 text-gray-500 hover:text-gray-800"
@@ -165,7 +169,11 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
             </div>
           </div>
           
-      
+          {/* Time Stats */}
+          <div className="flex justify-between">
+            <span className="text-gray-700">Time Played:</span>
+            <span className="font-bold">{formatTime(stats.timeElapsed)}</span>
+          </div>
           
           {/* Achievements Section */}
           {achievements.length > 0 && (
