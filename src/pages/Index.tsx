@@ -11,7 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { isValidWord, calculateWordScore } from "@/utils/dictionaryService";
 import { areAdjacent, getUpdatedGrid, isValidPosition, canLetterFall, isGridFull } from "@/utils/gridUtils";
 import { addShakeAnimation, highlightCells } from "@/utils/animationUtils";
-import { showWordValidationToast, showLevelUpToast } from "@/utils/toastUtils";
+import { showWordValidationToast } from "@/utils/toastUtils";
 import { 
   Cell, 
   GameGrid, 
@@ -442,7 +442,13 @@ if (landedLetters.length > 0) {
     if (score >= level * POINTS_PER_LEVEL) {
       setLevel(prev => {
         const newLevel = prev + 1;
-        showLevelUpToast(newLevel);
+        // Level up notification (directly using toast)
+        toast({
+          title: `Level ${newLevel}!`,
+          description: "Speed has increased! New letters are more challenging!",
+          variant: "default",
+          duration: 3000,
+        });
         return newLevel;
       });
     }
