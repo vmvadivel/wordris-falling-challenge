@@ -667,10 +667,14 @@ const Index = () => {
     );
   };
   
-  // Handle game over modal closing
-  const handleGameOverClose = () => {
-    setIsGameOver(false);
-  };
+
+  // Handle game over modal closing and game restart
+const handleGameOverClose = (open: boolean) => {
+  setIsGameOver(open);
+  if (!open) {
+    resetGame();
+  }
+};
   
   // Additional tracking stats
   const [lettersPlaced, setLettersPlaced] = useState<number>(0);
@@ -812,7 +816,7 @@ const Index = () => {
       {/* Game Over Modal */}
       <GameOverModal 
         isOpen={isGameOver} 
-        onClose={handleGameOverClose}
+        onOpenChange={handleGameOverClose} // Changed from onClose
         onRestart={resetGame}
         stats={{
           score,
