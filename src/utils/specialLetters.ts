@@ -1,4 +1,3 @@
-
 import { SpecialLetterEffect } from "@/types/game";
 
 export const SPECIAL_LETTERS: SpecialLetterEffect[] = [
@@ -37,15 +36,6 @@ export const SPECIAL_LETTERS: SpecialLetterEffect[] = [
     borderColor: "#22c55e", // Strong green border
     backgroundColor: "#dcfce7", // Light green bg with better contrast
     icon: "circle-dollar-sign",
-  },
-  {
-    letter: "V",
-    name: "Vowel Swap", 
-    description: "Swap any vowel with another",
-    color: "#a5b4fc", // Bright indigo
-    borderColor: "#4f46e5", // Strong indigo border
-    backgroundColor: "#e0e7ff", // Light indigo bg
-    icon: "circle-fading-plus",
   },
   {
     letter: "P",
