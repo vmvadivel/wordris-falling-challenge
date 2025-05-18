@@ -7,31 +7,36 @@ export const showWordValidationToast = (
   result: WordValidationResult,
   consecutiveWords: number
 ) => {
-  if (result.isValid) {
-    // Valid word toast
-    toast({
-      title: `"${word.toUpperCase()}" is valid!`,
-      description: `${result.baseScore} + ${result.rarityBonus} bonus = ${result.score} points`,
-      variant: "default",
-      duration: 3000,
-    });
-    
-    // Consecutive word bonus
-    if (consecutiveWords > 1) {
-      toast({
-        title: "Combo Bonus!",
-        description: `${consecutiveWords}x combo: +${consecutiveWords * 5} points`,
-        variant: "default",
-        duration: 2000,
-      });
-    }
-  } else {
+  if (!result.isValid) {
     // Invalid word toast
     toast({
       title: `"${word.toUpperCase()}" is not valid`,
       description: "Try another word",
       variant: "destructive",
       duration: 2000,
+    });
+    return;
+  }
+  
+  // For valid words, only show toasts for special occasions
+  
+  // Consecutive word bonus (combo)
+  if (consecutiveWords > 1) {
+    toast({
+      title: "Combo Bonus!",
+      description: `${consecutiveWords}x combo: +${consecutiveWords * 5} points`,
+      variant: "default",
+      duration: 2000,
+    });
+  }
+  
+  // For exceptionally high scoring words (over 15 points)
+  if (result.score > 15) {
+    toast({
+      title: "Great Word!",
+      description: `${result.baseScore} + ${result.rarityBonus} bonus = ${result.score} points`,
+      variant: "default", 
+      duration: 3000,
     });
   }
 };
