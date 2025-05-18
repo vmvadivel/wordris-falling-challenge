@@ -823,7 +823,8 @@ const handleGameOverClose = (open: boolean) => {
       {/* Game Over Modal */}
       <GameOverModal 
         isOpen={isGameOver} 
-        onOpenChange={handleGameOverClose} // Changed from onClose
+        onOpenChange={handleGameOverClose}
+        onClose={() => setIsGameOver(false)}
         onRestart={resetGame}
         stats={{
           score,
