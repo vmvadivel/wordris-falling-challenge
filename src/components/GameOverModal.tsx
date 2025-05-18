@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { Trophy, RotateCw, Share2, X } from "lucide-react";
 import {
