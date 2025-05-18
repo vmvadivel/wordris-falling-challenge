@@ -650,11 +650,7 @@ const Index = () => {
           onClick={() => letter && handleCellClick(row, col, letter)}
         >
           {letter}
-          {isSelected && (
-            <span className="absolute top-0 right-0 w-5 h-5 flex items-center justify-center bg-blue-500 text-white text-xs rounded-full -mt-2 -mr-2">
-              {selectedIndex + 1}
-            </span>
-          )}
+        
         </div>
       );
     });
