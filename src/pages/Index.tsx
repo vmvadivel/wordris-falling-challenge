@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Card, 
@@ -9,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Check, RotateCw, Shuffle, X, Zap } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { isValidWord, calculateWordScore } from "@/utils/dictionaryService";
-import { areAdjacent, getUpdatedGrid } from "@/utils/gridUtils";
+import { areAdjacent, getUpdatedGrid, isValidPosition, canLetterFall } from "@/utils/gridUtils";
 import { addShakeAnimation, highlightCells } from "@/utils/animationUtils";
 import { showWordValidationToast, showLevelUpToast } from "@/utils/toastUtils";
 import { 
