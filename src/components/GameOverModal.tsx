@@ -27,7 +27,7 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
 }) => {
   // Log when props change to track modal visibility
   useEffect(() => {
-    console.log("GameOverModal received isOpen:", isOpen);
+    console.log("### GameOverModal received isOpen:", isOpen);
   }, [isOpen]);
 
   // Format time as mm:ss
@@ -103,7 +103,7 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
 
   // Handle dialog close and restart game
   const handleDialogChange = (open: boolean) => {
-    console.log("GameOverModal handleDialogChange called with open:", open);
+    console.log("### GameOverModal handleDialogChange called with open:", open);
     
     // When dialog is closed (open=false), restart the game
     if (!open) {
@@ -115,6 +115,8 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
       onOpenChange(open);
     }
   };
+
+  console.log("### GameOverModal rendering with isOpen:", isOpen);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogChange}>

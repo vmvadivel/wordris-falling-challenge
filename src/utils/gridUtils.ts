@@ -114,17 +114,17 @@ export const canLetterFall = (
 };
 
 // Check if a game over should occur due to grid overflow
-// Fixed to better detect when the top row is actually full
 export const isGridFull = (grid: string[][]): boolean => {
-  // Game is over only when the entire top row is filled or has falling letters
-  console.log("Checking if grid is full - top row:", grid[0]);
+  console.log("### isGridFull check - Examining top row contents:", JSON.stringify(grid[0]));
   
+  // Game is over when the entire top row has content (no null cells)
   for (let col = 0; col < grid[0].length; col++) {
     if (grid[0][col] === null) {
-      console.log("Empty space found in top row at column:", col);
-      return false; // Found at least one empty space in the top row
+      console.log("### isGridFull: Found empty cell at column", col);
+      return false; // Found an empty space in top row
     }
   }
-  console.log("Grid top row is completely full - should trigger game over!");
+  
+  console.log("### isGridFull: TOP ROW IS COMPLETELY FULL - GAME OVER!");
   return true; // Top row is completely full
-}
+};
