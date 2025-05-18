@@ -165,10 +165,7 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
             </div>
           </div>
           
-          {/* Grid Visualization */}
-          <div className="py-2">
-            {renderGridVisualization()}
-          </div>
+      
           
           {/* Achievements Section */}
           {achievements.length > 0 && (
