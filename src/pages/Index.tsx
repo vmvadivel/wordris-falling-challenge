@@ -707,7 +707,7 @@ if (landedLetters.length > 0) {
       {/* Title Section - Responsive padding and margin */}
       <div className="text-center mb-4 md:mb-8 w-full max-w-6xl">
         <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">Wordris</h1>
-       {/* <h2 className="text-sm md:text-lg text-gray-300">A falling letter challenge for your vocabulary!</h2> */}
+        
       </div>
 
       {/* Game Container - Full height with flex grow */}
@@ -725,9 +725,7 @@ if (landedLetters.length > 0) {
 
         {/* Control Panel - Adaptive height and width */}
         <Card className="w-full lg:w-1/4 xl:w-72 bg-gray-900 border-gray-800 flex flex-col self-stretch lg:self-center max-h-[min(450px,65vh)] lg:max-h-[min(calc(100vh_-_14rem),650px)]">
-          <CardHeader className="py-2 md:py-3">
-            <CardTitle className="text-white text-xl">Game Controls</CardTitle>
-          </CardHeader>
+       
           <CardContent className="space-y-3 flex-1 py-2 flex flex-col justify-between">
             {/* Current Word with Clear and Submit buttons */}
             <div className="space-y-1">
