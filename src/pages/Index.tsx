@@ -559,12 +559,12 @@ if (landedLetters.length > 0) {
       
       // Apply multiplier notification if it was used
       if (currentPointMultiplier > 1) {
-        toast({
-          title: "Point Multiplier Applied!",
-          description: `Score multiplied by ${currentPointMultiplier}x`,
-          variant: "default",
-          duration: 3000,
-        });
+       // toast({
+       //   title: "Point Multiplier Applied!",
+       //   description: `Score multiplied by ${currentPointMultiplier}x`,
+       //   variant: "default",
+       //   duration: 3000,
+       // });
         // Reset the point multiplier after use
         setPointMultiplier(1);
       }
