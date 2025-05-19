@@ -1,3 +1,4 @@
+
 // Dictionary service to provide efficient word validation
 // Uses an English word list with over 100,000 words
 
@@ -219,6 +220,12 @@ class DictionaryTrie {
       loaded: this.loaded,
       wordCount: this.wordCount
     };
+  }
+
+  // Add the missing clearCache method
+  clearCache(): void {
+    // Use the exported clearWordCache function
+    clearWordCache();
   }
 }
 
