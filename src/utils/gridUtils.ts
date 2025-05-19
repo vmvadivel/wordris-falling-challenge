@@ -84,6 +84,7 @@ export const getUpdatedGrid = (
 };
 
 // Determine if a letter can move down, dealing with proper stacking
+// Now with efficient caching within the function itself (not using React's useMemo)
 export const canLetterFall = (
   grid: string[][], 
   row: number, 
@@ -91,13 +92,28 @@ export const canLetterFall = (
   fallingLetters: { row: number; col: number; id: string }[],
   currentLetterId: string
 ): boolean => {
+  // Create a cache key for the current call
+  const cacheKey = `${row},${col},${currentLetterId}`;
+  
+  // Check if we've already computed this result in our current function call's context
+  // This uses a function closure for caching rather than React's useMemo
+  if (!canLetterFall.cache) {
+    canLetterFall.cache = new Map();
+  }
+  
+  if (canLetterFall.cache.has(cacheKey)) {
+    return canLetterFall.cache.get(cacheKey);
+  }
+  
   // Check grid bounds
   if (row >= grid.length - 1) {
+    canLetterFall.cache.set(cacheKey, false);
     return false; // At bottom of grid
   }
   
   // Check if cell below is empty on the grid
   if (grid[row + 1][col] !== null) {
+    canLetterFall.cache.set(cacheKey, false);
     return false; // Cell below is occupied on the grid
   }
   
@@ -105,12 +121,30 @@ export const canLetterFall = (
   const letterBelow = fallingLetters.find(l => l.col === col && l.row === row + 1);
   
   if (!letterBelow) {
+    canLetterFall.cache.set(cacheKey, true);
     return true; // No letter below, free to fall
   }
   
   // If there's a letter below, check if it's also going to fall this frame
   // This prevents letters from getting stuck because they see another falling letter below
-  return canLetterFall(grid, row + 1, col, fallingLetters.filter(l => l.id !== letterBelow.id), currentLetterId);
+  const result = canLetterFall(grid, row + 1, col, fallingLetters.filter(l => l.id !== letterBelow.id), currentLetterId);
+  canLetterFall.cache.set(cacheKey, result);
+  return result;
+};
+
+// Add type definition for the cache property
+declare module "@/utils/gridUtils" {
+  interface CanLetterFallFunction {
+    (grid: string[][], row: number, col: number, fallingLetters: { row: number; col: number; id: string }[], currentLetterId: string): boolean;
+    cache?: Map<string, boolean>;
+  }
+}
+
+// Clear the cache for canLetterFall - should be called at the start of each game loop cycle
+export const clearCanLetterFallCache = (): void => {
+  if (canLetterFall.cache) {
+    canLetterFall.cache.clear();
+  }
 };
 
 // Check if a game over should occur due to grid overflow

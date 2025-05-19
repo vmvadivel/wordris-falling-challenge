@@ -17,7 +17,8 @@ import {
   isGridFull,
   getAvailableColumns,
   generateGridKey,
-  generateFallingLettersKey
+  generateFallingLettersKey,
+  clearCanLetterFallCache
 } from "@/utils/gridUtils";
 import { addShakeAnimation, highlightCells } from "@/utils/animationUtils";
 import { showWordValidationToast } from "@/utils/toastUtils";
@@ -180,14 +181,6 @@ const Index = () => {
     setGameActive(false);
     setIsGameOver(true);
     setTimeElapsed(Math.floor((Date.now() - gameStartTime) / 1000));
-    
-    // Cancel any active animations
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-
-    console.log("Game over state set, isGameOver:", true);
   };
   
   // Game loop using our optimized hook with memoized functions
@@ -208,38 +201,16 @@ const Index = () => {
         return;
       }
 
-      // Memoize the ability to fall for each letter
-      const fallingLettersMemo = useMemo(() => {
-        // Create a memoization cache for the current set of falling letters
-        const memoCache = new Map<string, boolean>();
-        
-        return (letterId: string, row: number, col: number): boolean => {
-          const cacheKey = `${row},${col},${letterId}`;
-          
-          if (!memoCache.has(cacheKey)) {
-            const result = canLetterFall(grid, row, col, fallingLetters, letterId);
-            memoCache.set(cacheKey, result);
-          }
-          
-          return memoCache.get(cacheKey) as boolean;
-        };
-      }, [grid, fallingLetters]);
+      // Clear the canLetterFall cache at the start of each game loop cycle
+      clearCanLetterFallCache();
 
       setFallingLetters(prevLetters => {
         let updatedLetters: FallingLetter[] = [];
         let landedLetters: FallingLetter[] = [];
 
-        // First, identify which letters can move down using the memoized function
-        const movableLetters = new Set<string>();
+        // First, identify which letters can move down
         prevLetters.forEach(l => {
-          if (fallingLettersMemo(l.id, l.row, l.col)) {
-            movableLetters.add(l.id);
-          }
-        });
-
-        // Now move letters that can move, and mark others as landed
-        prevLetters.forEach(l => {
-          if (movableLetters.has(l.id)) {
+          if (canLetterFall(grid, l.row, l.col, prevLetters, l.id)) {
             updatedLetters.push({ ...l, row: l.row + 1 });
           } else {
             landedLetters.push(l);
@@ -440,12 +411,6 @@ const Index = () => {
       
       // Apply multiplier notification if it was used
       if (currentPointMultiplier > 1) {
-       // toast({
-       //   title: "Point Multiplier Applied!",
-       //   description: `Score multiplied by ${currentPointMultiplier}x`,
-       //   variant: "default",
-       //   duration: 3000,
-       // });
         // Reset the point multiplier after use
         setPointMultiplier(1);
       }
