@@ -444,6 +444,7 @@ if (landedLetters.length > 0) {
     setTimeElapsed(0);
     setTimeSinceLastWord(0);
     setLettersPlaced(0);
+    setPointMultiplier(1);
     setBestWord(null);
     
     if (timeFreezeTimer !== null) {
