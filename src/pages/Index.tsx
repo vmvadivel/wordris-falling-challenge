@@ -644,7 +644,8 @@ if (landedLetters.length > 0) {
         return (
           <div
             key={index}
-            className="grid-cell aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200 relative bg-white/50"
+            //className="grid-cell aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-3xl font-bold transition-colors duration-200 relative bg-white/50"
+            className="grid-cell aspect-square w-full h-full rounded flex items-center justify-center text-3xl font-bold bg-gray-500"
           />
         );
       }
@@ -661,7 +662,7 @@ if (landedLetters.length > 0) {
       return (
         <div
           key={index}
-          className={`grid-cell aspect-square border ${isSpecial ? 'border-2' : 'border'} rounded flex items-center justify-center shadow-sm text-xl font-bold transition-colors duration-200 relative cursor-pointer
+          className={`grid-cell aspect-square w-full h-full rounded flex items-center justify-center text-3xl font-bold
             ${letter ? 'bg-white text-black' : 'bg-white/50'}
             ${isSelected ? 'selected bg-blue-200 border-blue-500' : ''}
             ${!isSelected && letter && !isSpecial ? 'hover:bg-gray-100' : ''}`}
