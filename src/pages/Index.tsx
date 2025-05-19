@@ -813,14 +813,7 @@ if (landedLetters.length > 0) {
               >
                 <RotateCw className="h-5 w-5 md:h-6 md:w-6 text-blue-400" />
               </Button>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="h-10 w-10 md:h-12 md:w-12 bg-gray-800 hover:bg-orange-900 border-gray-700 shadow-md"
-                onClick={() => setGameActive(!gameActive)}
-              >
-                <Shuffle className="h-5 w-5 md:h-6 md:w-6 text-orange-400" />
-              </Button>
+              
             </div>
           </CardContent>
         </Card>
