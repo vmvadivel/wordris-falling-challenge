@@ -9,11 +9,16 @@ import {
   isPrefixInCompressedDictionary,
   getCompressedDictionaryStats
 } from './compressedDictionary';
+import { isPrefixValidCached, clearPrefixCache } from './prefixCache';
 
 const { isValidWord: originalValidator, calculateWordScore, letterRarityPoints } = dictionaryModule;
 
 // Access commonWords through the default export - this type-checks correctly
 const commonWords = 'commonWords' in dictionaryModule ? dictionaryModule.commonWords : new Set<string>();
+
+// Fast cache for already validated words to prevent repeated lookups
+const validWordsCache = new Set<string>();
+const invalidWordsCache = new Set<string>();
 
 // We'll use a trie data structure for efficient word lookups
 class TrieNode {
@@ -74,34 +79,59 @@ class DictionaryTrie {
     }
   }
 
-  // Check if a word exists in the trie
+  // Check if a word exists in the trie - optimized with caching
   search(word: string): boolean {
     if (!word || typeof word !== 'string') {
       return false;
     }
     
-    // Check essential common words first for immediate response
-    if (this.additionalCommonWords.has(word.toLowerCase())) {
+    const lowerCaseWord = word.toLowerCase().trim();
+    
+    // Check caches first for instant response
+    if (validWordsCache.has(lowerCaseWord)) {
+      return true;
+    }
+    
+    if (invalidWordsCache.has(lowerCaseWord)) {
+      return false;
+    }
+    
+    // Check essential common words for immediate response
+    if (this.additionalCommonWords.has(lowerCaseWord)) {
+      validWordsCache.add(lowerCaseWord);
       return true;
     }
     
     // If using compressed dictionary, check that first
     if (this.usingCompressedDictionary) {
-      return isWordInCompressedDictionary(word);
+      const result = isWordInCompressedDictionary(word);
+      if (result) {
+        validWordsCache.add(lowerCaseWord);
+      } else {
+        invalidWordsCache.add(lowerCaseWord);
+      }
+      return result;
     }
     
+    // Fall back to trie search
     let current = this.root;
-    const lowerCaseWord = word.toLowerCase().trim();
 
     for (const char of lowerCaseWord) {
       const node = current.children.get(char);
       if (!node) {
+        invalidWordsCache.add(lowerCaseWord);
         return false;
       }
       current = node;
     }
 
-    return current.isEndOfWord;
+    const result = current.isEndOfWord;
+    if (result) {
+      validWordsCache.add(lowerCaseWord);
+    } else {
+      invalidWordsCache.add(lowerCaseWord);
+    }
+    return result;
   }
 
   // Check if prefix exists in the trie (useful for auto-complete features)
@@ -110,23 +140,25 @@ class DictionaryTrie {
       return false;
     }
     
-    // If using compressed dictionary, check that first
+    // If using compressed dictionary, check that first with cached lookup
     if (this.usingCompressedDictionary) {
       return isPrefixInCompressedDictionary(prefix);
     }
     
-    let current = this.root;
-    const lowerCasePrefix = prefix.toLowerCase().trim();
-
-    for (const char of lowerCasePrefix) {
-      const node = current.children.get(char);
-      if (!node) {
-        return false;
+    // Otherwise use our caching utility with local trie search
+    return isPrefixValidCached(prefix, (normalizedPrefix) => {
+      let current = this.root;
+      
+      for (const char of normalizedPrefix) {
+        const node = current.children.get(char);
+        if (!node) {
+          return false;
+        }
+        current = node;
       }
-      current = node;
-    }
-
-    return true;
+      
+      return true;
+    });
   }
 
   // Load the dictionary from a file with optimization for large dictionaries
@@ -219,6 +251,13 @@ export const isValidWord = (word: string): boolean => {
 // Re-export the calculateWordScore function from the dictionary module
 export { calculateWordScore, letterRarityPoints };
 
+// Add a function to clear the word cache
+export const clearWordCache = () => {
+  validWordsCache.clear();
+  invalidWordsCache.clear();
+  clearPrefixCache();
+};
+
 // Load the dictionary when the module is imported
 dictionaryTrie.loadDictionary().catch(console.error);
 
@@ -228,5 +267,6 @@ export default {
   calculateWordScore,
   getWordCount: () => dictionaryTrie.wordCount,
   getDictionaryStats: () => dictionaryTrie.getStats(),
-  isPrefixValid: (prefix: string) => dictionaryTrie.searchPrefix(prefix)
+  isPrefixValid: (prefix: string) => dictionaryTrie.searchPrefix(prefix),
+  clearCache: () => dictionaryTrie.clearCache()
 };

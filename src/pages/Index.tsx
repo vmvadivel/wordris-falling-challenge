@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Check, RotateCw, Shuffle, X, Zap } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { isValidWord, calculateWordScore } from "@/utils/dictionaryService";
+import { isValidWord, calculateWordScore, clearWordCache } from "@/utils/dictionaryService";
 import { areAdjacent, getUpdatedGrid, isValidPosition, canLetterFall, isGridFull } from "@/utils/gridUtils";
 import { addShakeAnimation, highlightCells } from "@/utils/animationUtils";
 import { showWordValidationToast } from "@/utils/toastUtils";
@@ -24,7 +24,10 @@ import {
 import SpecialLettersModal from "@/components/SpecialLettersModal";
 import GameOverModal from "@/components/GameOverModal";
 import Footer from "@/components/Footer";
-import { SPECIAL_LETTERS, isSpecialLetter, getSpecialLetterStyle } from "@/utils/specialLetters";
+import { SPECIAL_LETTERS, isSpecialLetter } from "@/utils/specialLetters";
+import GridCell from "@/components/GridCell";
+import useGameLoop from "@/hooks/useGameLoop";
+import { processSpecialLetterEffects } from "@/utils/specialLetterEffects";
 
 // Generate a random letter A-Z
 const letterFrequencies: { [letter: string]: number } = {
@@ -139,117 +142,14 @@ const Index = () => {
     });
   };
   
-  // Apply special letter effects
+  // Apply special letter effects - now using our optimized helper
   const applySpecialLetterEffects = (word: string, positions: Position[]) => {
-    // Check for special letters in the word
-    const letters = word.split('');
-    const specialLettersUsed = letters.filter(isSpecialLetter);
-    
-    if (specialLettersUsed.length === 0) return { hasAppliedEffect: false, scoreMultiplier: 1 };
-    
-    let scoreMultiplier = 1;
-    let hasAppliedEffect = false;
-    
-    // Process each special letter effect
-    for (const letter of specialLettersUsed) {
-      switch (letter) {
-        case 'Q': // Time Freeze
-          setTimeFreeze(true);
-          // Clear any existing timer
-          if (timeFreezeTimer !== null) {
-            clearTimeout(timeFreezeTimer);
-          }
-          // Set a new timer to end the freeze after 5 seconds
-          const timer = window.setTimeout(() => {
-            setTimeFreeze(false);
-            setTimeFreezeTimer(null);
-          }, 5000);
-          setTimeFreezeTimer(timer);
-          
-   
-          hasAppliedEffect = true;
-          break;
-          
-        case 'Z': // Column Clear
-          // Find the column where Z was placed
-          const zPosition = positions.find(pos => {
-            return grid[pos.row][pos.col] === 'Z';
-          });
-          
-          if (zPosition) {
-            setGrid(prevGrid => {
-              const newGrid = [...prevGrid];
-              // Clear the entire column
-              for (let row = 0; row < newGrid.length; row++) {
-                newGrid[row][zPosition.col] = null;
-              }
-              return newGrid;
-            });
-            
-          
-            hasAppliedEffect = true;
-          }
-          break;
-          
-        case 'X': // Area Clear
-          // Find the position where X was placed
-          const xPosition = positions.find(pos => {
-            return grid[pos.row][pos.col] === 'X';
-          });
-          
-          if (xPosition) {
-            setGrid(prevGrid => {
-              const newGrid = [...prevGrid];
-              // Clear the 8 adjacent cells (if they exist)
-              for (let r = -1; r <= 1; r++) {
-                for (let c = -1; c <= 1; c++) {
-                  if (r === 0 && c === 0) continue; // Skip the center cell (X itself)
-                  
-                  const newRow = xPosition.row + r;
-                  const newCol = xPosition.col + c;
-                  
-                  // Check if the position is valid
-                  if (newRow >= 0 && newRow < newGrid.length && 
-                      newCol >= 0 && newCol < newGrid[0].length) {
-                    newGrid[newRow][newCol] = null;
-                  }
-                }
-              }
-              return newGrid;
-            });
-            
-            
-            hasAppliedEffect = true;
-          }
-          break;
-          
-        case 'J': // Double Score
-          scoreMultiplier = 2;
-         
-          hasAppliedEffect = true;
-          break;
-          
-        case 'P': // Point Multiplier for next word
-          setPointMultiplier(3);
-        
-          hasAppliedEffect = true;
-          break;
-          
-        case 'V': // Vowel Swap
-          // This would need UI implementation to be effective
-         
-          hasAppliedEffect = true;
-          break;
-          
-        case 'Y': // Wildcard
-          // This is applied during word validation
-       
-          hasAppliedEffect = true;
-          break;
-      }
-    }
-    
-    return { hasAppliedEffect, scoreMultiplier };
+    return processSpecialLetterEffects(word, positions, grid, {
+      setTimeFreeze,
+      setTimeFreezeTimer,
+      setGrid,
+      setPointMultiplier
+    });
   };
   
   // Check if game should end due to grid overflow
@@ -283,8 +183,8 @@ const Index = () => {
     console.log("Game over state set, isGameOver:", true);
   };
   
-  // Game loop with requestAnimationFrame for smooth animation
-  const gameLoop = (timestamp: number) => {
+  // Game loop using our optimized hook
+  const gameLoopFn = (timestamp: number) => {
     if (!gameActive || timeFreeze) return;
 
     const elapsed = timestamp - lastDropTime.current;
@@ -323,23 +223,23 @@ const Index = () => {
         });
 
         // Place landed letters on the grid
-if (landedLetters.length > 0) {
-  console.log("Letters landed:", landedLetters.length);
-  setGrid(oldGrid => {
-    const newGrid = oldGrid.map(row => [...row]);
-    landedLetters.forEach(l => {
-      newGrid[l.row][l.col] = l.letter;
-    });
+        if (landedLetters.length > 0) {
+          console.log("Letters landed:", landedLetters.length);
+          setGrid(oldGrid => {
+            const newGrid = oldGrid.map(row => [...row]);
+            landedLetters.forEach(l => {
+              newGrid[l.row][l.col] = l.letter;
+            });
 
-    // Check grid fullness immediately with updated grid
-    if (isGridFull(newGrid)) {
-      console.log("Grid overflow detected inside setGrid! Calling endGame");
-      endGame();
-    }
+            // Check grid fullness immediately with updated grid
+            if (isGridFull(newGrid)) {
+              console.log("Grid overflow detected inside setGrid! Calling endGame");
+              endGame();
+            }
 
-    return newGrid;
-  });
-}
+            return newGrid;
+          });
+        }
 
         // When letters move, update any selections involving falling letters
         if (updatedLetters.length > 0) {
@@ -376,26 +276,14 @@ if (landedLetters.length > 0) {
     if (fallingLetters.length < 3 && Math.random() < 0.03 && getAvailableColumns().length > 0) {
       spawnNewLetter();
     }
-
-    animationRef.current = requestAnimationFrame(gameLoop);
   };
-  
-  // Start/stop game
-  useEffect(() => {
-    console.log("gameActive useEffect triggered - gameActive:", gameActive, "isGameOver:", isGameOver);
-    if (gameActive) {
-      lastDropTime.current = performance.now();
-      animationRef.current = requestAnimationFrame(gameLoop);
-    } else if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-    }
 
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [gameActive, grid, fallingLetters, timeFreeze, timeSinceLastWord]);
+  // Use our optimized game loop hook instead of raw requestAnimationFrame
+  const animationRef = useGameLoop({
+    onTick: gameLoopFn,
+    isActive: gameActive && !timeFreeze,
+    frameSkip: 1 // Can be adjusted for performance
+  });
   
   // Update drop speed based on level
   useEffect(() => {
@@ -426,7 +314,7 @@ if (landedLetters.length > 0) {
     };
   }, [timeFreezeTimer]);
 
-  // Reset the game
+  // Reset the game - now clears dictionary caches too for memory optimization
   const resetGame = () => {
     console.log("resetGame called - resetting all game state");
     setGrid(createEmptyGrid());
@@ -451,6 +339,9 @@ if (landedLetters.length > 0) {
       clearTimeout(timeFreezeTimer);
       setTimeFreezeTimer(null);
     }
+    
+    // Clear dictionary caches to prevent memory bloat
+    clearWordCache();
   };
   
   // Clear current word
@@ -586,7 +477,7 @@ if (landedLetters.length > 0) {
     setCurrentWord(prev => prev + letter);
   };
   
-  // Render the combined grid (static letters plus falling letter)
+  // Render the combined grid (static letters plus falling letter) with memoized cells
   const renderGrid = () => {
     // Create a copy of the grid for rendering that includes falling letters
     const renderGrid = grid.map(row => [...row]);
@@ -605,39 +496,23 @@ if (landedLetters.length > 0) {
       const isFalling = !!fallingLetter;
       const letter = cell || (fallingLetter ? fallingLetter.letter : null);
       
-      // Don't render empty cells
-      if (!letter) {
-        return (
-          <div
-            key={index}
-            //className="grid-cell aspect-square border border-gray-300 rounded flex items-center justify-center shadow-sm text-3xl font-bold transition-colors duration-200 relative bg-white/50"
-            className="grid-cell aspect-square w-full h-full rounded flex items-center justify-center text-3xl font-bold bg-gray-500"
-          />
-        );
-      }
-      
       // Check if this cell is selected
       const selectedIndex = selectedCells.findIndex(
         selected => selected.position.row === row && selected.position.col === col
       );
       
       const isSelected = selectedIndex !== -1;
-      const isSpecial = isSpecialLetter(letter);
-      const specialStyle = isSpecial ? getSpecialLetterStyle(letter) : undefined;
       
       return (
-        <div
+        <GridCell 
           key={index}
-          className={`grid-cell aspect-square w-full h-full rounded flex items-center justify-center text-3xl font-bold
-            ${letter ? 'bg-white text-black' : 'bg-white/50'}
-            ${isSelected ? 'selected bg-blue-200 border-blue-500' : ''}
-            ${!isSelected && letter && !isSpecial ? 'hover:bg-gray-100' : ''}`}
-          style={specialStyle}
-          onClick={() => letter && handleCellClick(row, col, letter)}
-        >
-          {letter}
-        
-        </div>
+          letter={letter}
+          row={row}
+          col={col}
+          isSelected={isSelected}
+          isFalling={isFalling}
+          onClick={handleCellClick}
+        />
       );
     });
   };

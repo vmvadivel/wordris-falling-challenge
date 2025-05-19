@@ -1,4 +1,3 @@
-
 /**
  * Dictionary Compression Utility
  * Implements an efficient trie-based dictionary structure for word lookups
@@ -6,6 +5,7 @@
 
 // Import the dictionary file directly
 import dictionaryData from '../data/english-words.txt?raw';
+import { isPrefixValidCached } from './prefixCache';
 
 // Compressed trie node structure (more memory efficient than class instances)
 interface CompressedTrieNode {
@@ -14,6 +14,14 @@ interface CompressedTrieNode {
 
 let compressedDictionary: CompressedTrieNode = {};
 let dictionaryLoaded = false;
+
+// Cache common words for immediate response
+const commonWordsCache = new Set<string>([
+  'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i',
+  'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at',
+  'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she',
+  'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what'
+]);
 
 /**
  * Build a compressed trie from a list of words
@@ -61,19 +69,39 @@ export const loadCompressedDictionary = async (): Promise<void> => {
     const chunkSize = 5000;
     let processedWords: string[] = [];
     
-    for (let i = 0; i < words.length; i += chunkSize) {
-      const chunk = words.slice(i, i + chunkSize);
-      processedWords = [...processedWords, ...chunk];
+    // Using a promise-based approach for better UI responsiveness
+    await new Promise<void>((resolve) => {
+      let i = 0;
       
-      // Allow UI to update occasionally during large processing
-      if (i % 20000 === 0 && i > 0) {
-        await new Promise(resolve => setTimeout(resolve, 0));
+      function processChunk() {
+        const end = Math.min(i + chunkSize, words.length);
+        const chunk = words.slice(i, end);
+        processedWords = [...processedWords, ...chunk];
+        
+        i += chunkSize;
+        
+        if (i < words.length) {
+          // Schedule next chunk
+          setTimeout(processChunk, 0);
+        } else {
+          resolve();
+        }
       }
-    }
+      
+      processChunk();
+    });
     
     // Build the trie with all processed words
     compressedDictionary = buildTrie(processedWords);
     dictionaryLoaded = true;
+    
+    // Pre-cache common words
+    processedWords.forEach(word => {
+      if (word.length <= 5) {
+        commonWordsCache.add(word.toLowerCase().trim());
+      }
+    });
+    
     console.log('Dictionary compressed and loaded successfully');
     
   } catch (error) {
@@ -88,11 +116,21 @@ export const loadCompressedDictionary = async (): Promise<void> => {
  * Check if a word exists in the compressed dictionary
  */
 export const isWordInCompressedDictionary = (word: string): boolean => {
-  if (!word || typeof word !== 'string' || !dictionaryLoaded) {
+  if (!word || typeof word !== 'string') {
     return false;
   }
   
   const lowerCaseWord = word.toLowerCase().trim();
+  
+  // First check the common words cache for instant response
+  if (commonWordsCache.has(lowerCaseWord)) {
+    return true;
+  }
+  
+  if (!dictionaryLoaded) {
+    return false;
+  }
+  
   let current = compressedDictionary;
   
   for (const char of lowerCaseWord) {
@@ -107,23 +145,25 @@ export const isWordInCompressedDictionary = (word: string): boolean => {
 
 /**
  * Check if a prefix exists in the compressed dictionary (useful for autocomplete)
+ * Now using the prefix cache for better performance
  */
 export const isPrefixInCompressedDictionary = (prefix: string): boolean => {
-  if (!prefix || typeof prefix !== 'string' || !dictionaryLoaded) {
-    return false;
-  }
-  
-  const lowerCasePrefix = prefix.toLowerCase().trim();
-  let current = compressedDictionary;
-  
-  for (const char of lowerCasePrefix) {
-    if (!current[char]) {
+  return isPrefixValidCached(prefix, (normalizedPrefix) => {
+    if (!dictionaryLoaded) {
       return false;
     }
-    current = current[char] as CompressedTrieNode;
-  }
-  
-  return true;
+    
+    let current = compressedDictionary;
+    
+    for (const char of normalizedPrefix) {
+      if (!current[char]) {
+        return false;
+      }
+      current = current[char] as CompressedTrieNode;
+    }
+    
+    return true;
+  });
 };
 
 /**
