@@ -166,12 +166,7 @@ const Index = () => {
           }, 5000);
           setTimeFreezeTimer(timer);
           
-          toast({
-            title: "Time Freeze Activated!",
-            description: "Falling letters frozen for 5 seconds",
-            variant: "default",
-            duration: 3000,
-          });
+   
           hasAppliedEffect = true;
           break;
           
@@ -191,12 +186,7 @@ const Index = () => {
               return newGrid;
             });
             
-            toast({
-              title: "Column Clear Activated!",
-              description: "Cleared an entire column",
-              variant: "default",
-              duration: 3000,
-            });
+          
             hasAppliedEffect = true;
           }
           break;
@@ -228,57 +218,32 @@ const Index = () => {
               return newGrid;
             });
             
-            toast({
-              title: "Area Clear Activated!",
-              description: "Cleared all adjacent tiles",
-              variant: "default",
-              duration: 3000,
-            });
+            
             hasAppliedEffect = true;
           }
           break;
           
         case 'J': // Double Score
           scoreMultiplier = 2;
-          toast({
-            title: "Double Score Activated!",
-            description: "Score for this word is doubled",
-            variant: "default",
-            duration: 3000,
-          });
+         
           hasAppliedEffect = true;
           break;
           
         case 'P': // Point Multiplier for next word
           setPointMultiplier(3);
-          toast({
-            title: "Point Multiplier Activated!",
-            description: "Your next word will get triple points!",
-            variant: "default",
-            duration: 3000,
-          });
+        
           hasAppliedEffect = true;
           break;
           
         case 'V': // Vowel Swap
           // This would need UI implementation to be effective
-          toast({
-            title: "Vowel Swap Activated!",
-            description: "Swap any vowel with another",
-            variant: "default",
-            duration: 3000,
-          });
+         
           hasAppliedEffect = true;
           break;
           
         case 'Y': // Wildcard
           // This is applied during word validation
-          toast({
-            title: "Wildcard Activated!",
-            description: "Y can be used as any letter",
-            variant: "default",
-            duration: 3000,
-          });
+       
           hasAppliedEffect = true;
           break;
       }
