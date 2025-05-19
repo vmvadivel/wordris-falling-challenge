@@ -26,7 +26,6 @@ const GridCell = ({ letter, row, col, isSelected, isFalling, onClick }: GridCell
     <div
       className={`grid-cell aspect-square w-full h-full rounded flex items-center justify-center text-3xl font-bold
         ${letter ? 'bg-white text-black' : 'bg-white/50'}
-        ${isSelected ? 'bg-blue-200' : ''}
         ${!isSelected && letter && !isSpecial ? 'hover:bg-gray-100' : ''}`}
       style={{
         ...specialStyle,
