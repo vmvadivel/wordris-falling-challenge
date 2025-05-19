@@ -90,7 +90,6 @@ const Index = () => {
   const [timeSinceLastWord, setTimeSinceLastWord] = useState<number>(0);
   
   // Refs for animation control
-  const animationRef = useRef<number | null>(null);
   const lastDropTime = useRef<number>(0);
   const dropInterval = useRef<number>(1000); // Drop speed in milliseconds
   const gridRef = useRef<HTMLDivElement>(null);
