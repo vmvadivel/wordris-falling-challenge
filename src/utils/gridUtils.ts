@@ -1,4 +1,3 @@
-
 import { Position } from "@/types/game";
 
 // Check if two cells are adjacent (horizontally, vertically, or diagonally)
@@ -83,9 +82,15 @@ export const getUpdatedGrid = (
   return newGrid;
 };
 
+// Define the type for our canLetterFall function that includes the cache property
+interface CanLetterFallFunction {
+  (grid: string[][], row: number, col: number, fallingLetters: { row: number; col: number; id: string }[], currentLetterId: string): boolean;
+  cache?: Map<string, boolean>;
+}
+
 // Determine if a letter can move down, dealing with proper stacking
-// Now with efficient caching within the function itself (not using React's useMemo)
-export const canLetterFall = (
+// Now with efficient caching within the function itself
+export const canLetterFall: CanLetterFallFunction = (
   grid: string[][], 
   row: number, 
   col: number, 
@@ -102,7 +107,7 @@ export const canLetterFall = (
   }
   
   if (canLetterFall.cache.has(cacheKey)) {
-    return canLetterFall.cache.get(cacheKey);
+    return canLetterFall.cache.get(cacheKey) as boolean;
   }
   
   // Check grid bounds
@@ -131,14 +136,6 @@ export const canLetterFall = (
   canLetterFall.cache.set(cacheKey, result);
   return result;
 };
-
-// Add type definition for the cache property
-declare module "@/utils/gridUtils" {
-  interface CanLetterFallFunction {
-    (grid: string[][], row: number, col: number, fallingLetters: { row: number; col: number; id: string }[], currentLetterId: string): boolean;
-    cache?: Map<string, boolean>;
-  }
-}
 
 // Clear the cache for canLetterFall - should be called at the start of each game loop cycle
 export const clearCanLetterFallCache = (): void => {
