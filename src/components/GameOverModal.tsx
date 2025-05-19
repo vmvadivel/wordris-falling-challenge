@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { Trophy, RotateCw, Share2, X } from "lucide-react";
 import {
@@ -126,12 +125,7 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
           <DialogDescription className="sr-only">
             Game over details and statistics
           </DialogDescription>
-          <button 
-            onClick={onClose}
-            className="absolute right-4 top-4 text-gray-500 hover:text-gray-800"
-          >
-            <X size={20} />
-          </button>
+          {/* Removed the custom X button here, now using only the built-in Dialog close button */}
           <div className="flex items-center justify-center mb-2">
             <Trophy className="h-8 w-8 text-yellow-400" />
           </div>
