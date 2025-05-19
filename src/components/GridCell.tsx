@@ -26,13 +26,11 @@ const GridCell = ({ letter, row, col, isSelected, isFalling, onClick }: GridCell
     <div
       className={`grid-cell aspect-square w-full h-full rounded flex items-center justify-center text-3xl font-bold
         ${letter ? 'bg-white text-black' : 'bg-white/50'}
-        ${isSelected ? 'selected border-2 bg-blue-200 border-blue-500' : ''}
+        ${isSelected ? 'bg-blue-200' : ''}
         ${!isSelected && letter && !isSpecial ? 'hover:bg-gray-100' : ''}`}
       style={{
         ...specialStyle,
-        // Prevents scaling overlap without changing the cell's dimensions
         boxSizing: 'border-box',
-        // We'll add a subtle transform that doesn't cause overlapping
         transform: isSelected ? 'scale(1.02)' : 'none',
         transition: 'transform 0.15s ease-out, background-color 0.15s ease-out',
         position: 'relative',
