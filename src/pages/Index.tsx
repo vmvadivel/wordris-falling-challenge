@@ -707,7 +707,7 @@ if (landedLetters.length > 0) {
       {/* Title Section - Responsive padding and margin */}
       <div className="text-center mb-4 md:mb-8 w-full max-w-6xl">
         <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">Wordris</h1>
-        <h2 className="text-sm md:text-lg text-gray-300">A falling letter challenge for your vocabulary!</h2>
+       {/* <h2 className="text-sm md:text-lg text-gray-300">A falling letter challenge for your vocabulary!</h2> */}
       </div>
 
       {/* Game Container - Full height with flex grow */}
