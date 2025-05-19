@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { 
   Card, 
   CardContent, 
@@ -9,7 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Check, RotateCw, Shuffle, X, Zap } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { isValidWord, calculateWordScore, clearWordCache } from "@/utils/dictionaryService";
-import { areAdjacent, getUpdatedGrid, isValidPosition, canLetterFall, isGridFull } from "@/utils/gridUtils";
+import { 
+  areAdjacent, 
+  getUpdatedGrid, 
+  isValidPosition, 
+  canLetterFall, 
+  isGridFull,
+  getAvailableColumns,
+  generateGridKey,
+  generateFallingLettersKey
+} from "@/utils/gridUtils";
 import { addShakeAnimation, highlightCells } from "@/utils/animationUtils";
 import { showWordValidationToast } from "@/utils/toastUtils";
 import { 
@@ -102,20 +111,14 @@ const Index = () => {
     return Math.max(10, 30 - ((level - MIN_LEVEL_FOR_TIME_CHALLENGE) * 5));
   };
   
+  // Memoize available columns for spawning
+  const availableColumns = useMemo(() => {
+    return getAvailableColumns(grid);
+  }, [grid]);
+  
   // Function to check if a column is available for spawning
   const isColumnAvailable = (col: number): boolean => {
-    return grid[0][col] === null;
-  };
-  
-  // Find all available columns for spawning
-  const getAvailableColumns = (): number[] => {
-    const available = [];
-    for (let col = 0; col < 8; col++) {
-      if (isColumnAvailable(col)) {
-        available.push(col);
-      }
-    }
-    return available;
+    return availableColumns.includes(col);
   };
   
   // Spawn a new letter in a random available column
@@ -123,12 +126,13 @@ const Index = () => {
     setFallingLetters(prev => {
       if (prev.length >= 3) return prev; // Max 3 at once
 
-      const availableColumns = getAvailableColumns().filter(
+      // Use memoized availableColumns
+      const currentAvailableColumns = availableColumns.filter(
         col => !prev.some(l => l.col === col && l.row === 0)
       );
-      if (availableColumns.length === 0) return prev;
+      if (currentAvailableColumns.length === 0) return prev;
 
-      const randomCol = availableColumns[Math.floor(Math.random() * availableColumns.length)];
+      const randomCol = currentAvailableColumns[Math.floor(Math.random() * currentAvailableColumns.length)];
       return [
         ...prev,
         {
@@ -151,12 +155,16 @@ const Index = () => {
     });
   };
   
+  // Memoize grid fullness check
+  const gridIsFull = useMemo(() => {
+    return isGridFull(grid);
+  }, [grid]);
+  
   // Check if game should end due to grid overflow
   const checkGridOverflow = (): boolean => {
-    // Check if all columns in the top row are filled
-    const result = isGridFull(grid);
-    console.log("checkGridOverflow called - result:", result, "Current grid top row:", grid[0]);
-    return result;
+    // Use memoized result
+    console.log("checkGridOverflow called - result:", gridIsFull, "Current grid top row:", grid[0]);
+    return gridIsFull;
   };
   
   // Check if game should end due to time between words
@@ -182,7 +190,7 @@ const Index = () => {
     console.log("Game over state set, isGameOver:", true);
   };
   
-  // Game loop using our optimized hook
+  // Game loop using our optimized hook with memoized functions
   const gameLoopFn = (timestamp: number) => {
     if (!gameActive || timeFreeze) return;
 
@@ -200,14 +208,31 @@ const Index = () => {
         return;
       }
 
+      // Memoize the ability to fall for each letter
+      const fallingLettersMemo = useMemo(() => {
+        // Create a memoization cache for the current set of falling letters
+        const memoCache = new Map<string, boolean>();
+        
+        return (letterId: string, row: number, col: number): boolean => {
+          const cacheKey = `${row},${col},${letterId}`;
+          
+          if (!memoCache.has(cacheKey)) {
+            const result = canLetterFall(grid, row, col, fallingLetters, letterId);
+            memoCache.set(cacheKey, result);
+          }
+          
+          return memoCache.get(cacheKey) as boolean;
+        };
+      }, [grid, fallingLetters]);
+
       setFallingLetters(prevLetters => {
         let updatedLetters: FallingLetter[] = [];
         let landedLetters: FallingLetter[] = [];
 
-        // First, identify which letters can move down
+        // First, identify which letters can move down using the memoized function
         const movableLetters = new Set<string>();
         prevLetters.forEach(l => {
-          if (canLetterFall(grid, l.row, l.col, prevLetters, l.id)) {
+          if (fallingLettersMemo(l.id, l.row, l.col)) {
             movableLetters.add(l.id);
           }
         });
@@ -272,7 +297,7 @@ const Index = () => {
 
     // Spawn new letter if less than 3 are falling, with a small random chance
     // Only try to spawn if there are available columns
-    if (fallingLetters.length < 3 && Math.random() < 0.03 && getAvailableColumns().length > 0) {
+    if (fallingLetters.length < 3 && Math.random() < 0.03 && availableColumns.length > 0) {
       spawnNewLetter();
     }
   };

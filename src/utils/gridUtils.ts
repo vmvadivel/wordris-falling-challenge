@@ -128,3 +128,25 @@ export const isGridFull = (grid: string[][]): boolean => {
   console.log("### isGridFull: TOP ROW IS COMPLETELY FULL - GAME OVER!");
   return true; // Top row is completely full
 };
+
+// Memoization key generators - these help create unique cache keys based on inputs
+export const generateGridKey = (grid: string[][]): string => {
+  // Create a string representation of the grid's top row (which is what matters for isGridFull)
+  return grid[0].map(cell => cell === null ? '_' : cell).join('');
+};
+
+export const generateFallingLettersKey = (fallingLetters: { row: number; col: number; id: string }[]): string => {
+  // Create a string representation of all falling letters' positions
+  return fallingLetters.map(l => `${l.id}:${l.row},${l.col}`).sort().join('|');
+};
+
+// Get all available columns for spawning new letters (columns with null in top row)
+export const getAvailableColumns = (grid: string[][]): number[] => {
+  const available = [];
+  for (let col = 0; col < grid[0].length; col++) {
+    if (grid[0][col] === null) {
+      available.push(col);
+    }
+  }
+  return available;
+};
