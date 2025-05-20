@@ -1,4 +1,3 @@
-
 #root {
   width: 100%;
   height: 100vh;
@@ -43,7 +42,12 @@
   color: #888;
 }
 
-/* Grid cell selection styles - improved to prevent overlap */
+/* Grid cell selection styles - improved for high contrast on dark theme */
 .grid-cell.selected {
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.7); /* Purple glow effect */
+}
+
+/* Ensure there's a good visual distinction between selected and non-selected */
+.grid-cell {
+  transition: all 0.2s ease-out;
 }

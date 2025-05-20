@@ -26,12 +26,12 @@ const GridCell = ({ letter, row, col, isSelected, isFalling, onClick }: GridCell
     <div
       className={`grid-cell aspect-square w-full h-full rounded flex items-center justify-center text-3xl font-bold
         ${letter ? 'bg-white text-black' : 'bg-white/50'}
+        ${isSelected ? 'bg-purple-500 text-white' : ''}
         ${!isSelected && letter && !isSpecial ? 'hover:bg-gray-100' : ''}`}
       style={{
         ...specialStyle,
         boxSizing: 'border-box',
-        transform: isSelected ? 'scale(1.02)' : 'none',
-        transition: 'transform 0.15s ease-out, background-color 0.15s ease-out',
+        transition: 'all 0.15s ease-out',
         position: 'relative',
         zIndex: isSelected ? '5' : 'auto'
       }}
