@@ -23,22 +23,23 @@ const GridCell = ({ letter, row, col, isSelected, isFalling, onClick }: GridCell
   const specialStyle = isSpecial ? getSpecialLetterStyle(letter) : undefined;
   
   return (
-    <div
-      className={`grid-cell aspect-square w-full h-full rounded flex items-center justify-center text-3xl font-bold
-        ${letter ? 'bg-white text-black' : 'bg-white/50'}
-        ${isSelected ? 'bg-purple-500 text-white' : ''}
-        ${!isSelected && letter && !isSpecial ? 'hover:bg-gray-100' : ''}`}
-      style={{
-        ...specialStyle,
-        boxSizing: 'border-box',
-        transition: 'all 0.15s ease-out',
-        position: 'relative',
-        zIndex: isSelected ? '5' : 'auto'
-      }}
-      onClick={() => letter && onClick(row, col, letter)}
-    >
-      {letter}
-    </div>
+   
+     <div
+    className={`
+      grid-cell aspect-square w-full h-full rounded flex items-center justify-center text-3xl font-bold
+      ${isSelected ? 'bg-purple-500 text-white' : letter ? 'bg-white text-black hover:bg-gray-100' : 'bg-white/50'}
+    `}
+    style={{
+      ...specialStyle,
+      boxSizing: 'border-box',
+      transition: 'all 0.15s ease-out',
+      position: 'relative',
+      zIndex: isSelected ? '5' : 'auto'
+    }}
+    onClick={() => letter && onClick(row, col, letter)}
+  >
+    {letter}
+  </div>
   );
 };
 
