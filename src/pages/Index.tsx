@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { 
   Card, 
   CardContent, 
@@ -434,8 +434,8 @@ const Index = () => {
     }
   };
   
-  // Handle clicking on a cell
-  const handleCellClick = (row: number, col: number, letter: string) => {
+  // Handle clicking on a cell - now wrapped in useCallback
+  const handleCellClick = useCallback((row: number, col: number, letter: string) => {
     // Only allow selection when the game is active
     if (!gameActive) return;
     
@@ -464,7 +464,7 @@ const Index = () => {
     const newSelectedCell = { letter, position: clickedPosition };
     setSelectedCells(prev => [...prev, newSelectedCell]);
     setCurrentWord(prev => prev + letter);
-  };
+  }, [gameActive, selectedCells, setSelectedCells, setCurrentWord]);
   
   // Render the combined grid (static letters plus falling letter) with memoized cells
   const renderGrid = () => {
