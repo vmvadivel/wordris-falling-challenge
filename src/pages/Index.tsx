@@ -219,7 +219,7 @@ const Index = () => {
 
         // Place landed letters on the grid
         if (landedLetters.length > 0) {
-          console.log("Letters landed:", landedLetters.length);
+         // console.log("Letters landed:", landedLetters.length);
           setGrid(oldGrid => {
             const newGrid = oldGrid.map(row => [...row]);
             landedLetters.forEach(l => {
@@ -228,7 +228,7 @@ const Index = () => {
 
             // Check grid fullness immediately with updated grid
             if (isGridFull(newGrid)) {
-              console.log("Grid overflow detected inside setGrid! Calling endGame");
+           //   console.log("Grid overflow detected inside setGrid! Calling endGame");
               endGame();
             }
 
