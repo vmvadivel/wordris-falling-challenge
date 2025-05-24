@@ -282,7 +282,7 @@ const Index = () => {
   
   // Update drop speed based on level
   useEffect(() => {
-    dropInterval.current = Math.max(200, 800 - (level - 1) * 80);
+    dropInterval.current = Math.max(300, 950 - (level - 1) * 50);
   }, [level]);
   
   // Check if score triggers a level up
@@ -311,7 +311,7 @@ const Index = () => {
 
   // Reset the game - now clears dictionary caches too for memory optimization
   const resetGame = () => {
-    console.log("resetGame called - resetting all game state");
+   // console.log("resetGame called - resetting all game state");
     setGrid(createEmptyGrid());
     setCurrentWord("");
     setSelectedCells([]);
