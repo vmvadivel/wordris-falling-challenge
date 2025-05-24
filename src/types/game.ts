@@ -51,5 +51,5 @@ export type GameStats = {
 };
 
 // Game configuration constants
-export const POINTS_PER_LEVEL = 250;
+export const POINTS_PER_LEVEL = 750;
 export const MIN_LEVEL_FOR_TIME_CHALLENGE = 4;
