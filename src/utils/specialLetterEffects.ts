@@ -24,7 +24,7 @@ export const processSpecialLetterEffects = (
   const specialLetters = new Map([
     ['Q', handleTimeFreezeEffect],
     ['Z', handleColumnClearEffect],
-    ['X', handleAreaClearEffect],
+    ['X', handleRowClearEffect],
     ['J', handleDoubleScoreEffect],
     ['P', handlePointMultiplierEffect],
     ['V', handleVowelSwapEffect],
@@ -113,7 +113,7 @@ function handleColumnClearEffect(position: Position | undefined, callbacks: any,
   return { hasAppliedEffect: true, scoreMultiplier: 1 };
 }
 
-function handleAreaClearEffect(position: Position | undefined, callbacks: any, wordLength: number = 3): SpecialLetterEffectResult {
+function handleRowClearEffect(position: Position | undefined, callbacks: any, wordLength: number = 3, grid: string[][]): SpecialLetterEffectResult {
   if (!position) return { hasAppliedEffect: false, scoreMultiplier: 1 };
   
   const { setGrid } = callbacks;
@@ -129,20 +129,9 @@ function handleAreaClearEffect(position: Position | undefined, callbacks: any, w
         }
       }
     } else {
-      // Clear the 8 adjacent cells for words of 3-4 letters (existing behavior)
-      for (let r = -1; r <= 1; r++) {
-        for (let c = -1; c <= 1; c++) {
-          if (r === 0 && c === 0) continue; // Skip the center cell (X itself)
-          
-          const newRow = position.row + r;
-          const newCol = position.col + c;
-          
-          // Check if the position is valid
-          if (newRow >= 0 && newRow < newGrid.length && 
-              newCol >= 0 && newCol < newGrid[0].length) {
-            newGrid[newRow][newCol] = null;
-          }
-        }
+      // Clear the single row for words of 3-4 letters
+      for (let col = 0; col < newGrid[position.row].length; col++) {
+        newGrid[position.row][col] = null;
       }
     }
     
