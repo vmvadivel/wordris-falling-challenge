@@ -7,6 +7,7 @@ import GameBoard from "@/components/GameBoard";
 import ControlPanel from "@/components/ControlPanel";
 import SpecialLettersModal from "@/components/SpecialLettersModal";
 import GameOverModal from "@/components/GameOverModal";
+import HelpModal from "@/components/HelpModal";
 import Footer from "@/components/Footer";
 import { SPECIAL_LETTERS } from "@/utils/specialLetters";
 
