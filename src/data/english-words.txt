@@ -95717,6 +95717,7 @@ pimpliest
 pimply
 pimps
 pin
+pins
 pinafore
 pinafores
 pinata
@@ -95735,6 +95736,7 @@ pinchers
 pinches
 pinching
 pinchpenny
+pincode
 pincushion
 pincushions
 pindling
