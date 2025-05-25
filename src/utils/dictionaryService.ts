@@ -1,8 +1,7 @@
-
 // Dictionary service to provide efficient word validation
-// Uses an English word list with over 100,000 words
+// Uses an English word list with comprehensive coverage
 
-// Import the dictionary module and explicitly extract what's exported
+// Import the dictionary module for scoring functions
 import dictionaryModule from './dictionary';
 import { 
   loadCompressedDictionary,
@@ -12,10 +11,7 @@ import {
 } from './compressedDictionary';
 import { isPrefixValidCached, clearPrefixCache } from './prefixCache';
 
-const { isValidWord: originalValidator, calculateWordScore, letterRarityPoints } = dictionaryModule;
-
-// Access commonWords through the default export - this type-checks correctly
-const commonWords = 'commonWords' in dictionaryModule ? dictionaryModule.commonWords : new Set<string>();
+const { calculateWordScore, letterRarityPoints } = dictionaryModule;
 
 // Fast cache for already validated words to prevent repeated lookups
 const validWordsCache = new Set<string>();
@@ -37,7 +33,6 @@ class DictionaryTrie {
   loaded: boolean;
   loading: boolean;
   wordCount: number;
-  additionalCommonWords: Set<string>;
   usingCompressedDictionary: boolean;
 
   constructor() {
@@ -46,13 +41,6 @@ class DictionaryTrie {
     this.loading = false;
     this.wordCount = 0;
     this.usingCompressedDictionary = false;
-    
-    // Add essential common words that should never be missing
-    this.additionalCommonWords = new Set([
-      'pin', 'pins', 'pincode', 'fasting', 'fast', 'dictionary',
-      'code', 'coding', 'computer', 'program', 'programming',
-      // Add more essential words that should always be recognized
-    ]);
   }
 
   // Insert a word into the trie
@@ -95,12 +83,6 @@ class DictionaryTrie {
     
     if (invalidWordsCache.has(lowerCaseWord)) {
       return false;
-    }
-    
-    // Check essential common words for immediate response
-    if (this.additionalCommonWords.has(lowerCaseWord)) {
-      validWordsCache.add(lowerCaseWord);
-      return true;
     }
     
     // If using compressed dictionary, check that first
@@ -170,12 +152,8 @@ class DictionaryTrie {
     
     try {
       console.log('Loading compressed dictionary...');
-      // Use the compressed dictionary approach instead
       await loadCompressedDictionary();
       this.usingCompressedDictionary = true;
-      
-      // Add essential common words
-      this.additionalCommonWords.forEach(word => this.insert(word));
       
       const stats = getCompressedDictionaryStats();
       this.wordCount = stats.wordCount;
@@ -183,27 +161,6 @@ class DictionaryTrie {
       this.loaded = true;
     } catch (error) {
       console.error('Error loading dictionary:', error);
-      // Fallback to the original dictionary if loading fails
-      if (commonWords && typeof commonWords !== 'undefined') {
-        if (commonWords instanceof Set) {
-          commonWords.forEach(word => {
-            if (typeof word === 'string') {
-              this.insert(word);
-            }
-          });
-        } else if (Array.isArray(commonWords)) {
-          commonWords.forEach(word => {
-            if (typeof word === 'string') {
-              this.insert(word);
-            }
-          });
-        }
-      }
-      
-      // Add essential common words in the fallback case too
-      this.additionalCommonWords.forEach(word => this.insert(word));
-      
-      console.log(`Fallback dictionary loaded with ${this.wordCount} words`);
       this.loaded = true;
     } finally {
       this.loading = false;
@@ -222,9 +179,8 @@ class DictionaryTrie {
     };
   }
 
-  // Add the missing clearCache method
+  // Clear cache method
   clearCache(): void {
-    // Use the exported clearWordCache function
     clearWordCache();
   }
 }
@@ -241,16 +197,10 @@ export const isValidWordAsync = async (word: string): Promise<boolean> => {
 };
 
 // Sync function that returns whether the word is valid
-// Uses the existing dictionary as fallback if the new one isn't loaded yet
 export const isValidWord = (word: string): boolean => {
-  // Check essential common words directly for immediate response
-  if (dictionaryTrie.additionalCommonWords.has(word.toLowerCase())) {
-    return true;
-  }
-  
   if (!dictionaryTrie.loaded) {
-    // If dictionary isn't loaded yet, use the original implementation as fallback
-    return originalValidator(word);
+    // Return false if dictionary isn't loaded yet - simpler and more reliable
+    return false;
   }
   return dictionaryTrie.search(word);
 };

@@ -1,3 +1,4 @@
+
 /**
  * Dictionary Compression Utility
  * Implements an efficient trie-based dictionary structure for word lookups
@@ -14,14 +15,6 @@ interface CompressedTrieNode {
 
 let compressedDictionary: CompressedTrieNode = {};
 let dictionaryLoaded = false;
-
-// Cache common words for immediate response
-const commonWordsCache = new Set<string>([
-  'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i',
-  'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at',
-  'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she',
-  'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what'
-]);
 
 /**
  * Build a compressed trie from a list of words
@@ -58,7 +51,6 @@ export const loadCompressedDictionary = async (): Promise<void> => {
   try {
     console.log('Loading and compressing dictionary...');
     
-    // Instead of fetching from public, we use the imported dictionary data
     const text = dictionaryData;
     
     // Filter out comment lines and empty lines
@@ -95,14 +87,7 @@ export const loadCompressedDictionary = async (): Promise<void> => {
     compressedDictionary = buildTrie(processedWords);
     dictionaryLoaded = true;
     
-    // Pre-cache common words
-    processedWords.forEach(word => {
-      if (word.length <= 5) {
-        commonWordsCache.add(word.toLowerCase().trim());
-      }
-    });
-    
-    console.log('Dictionary compressed and loaded successfully');
+    console.log(`Dictionary compressed and loaded successfully with ${processedWords.length.toLocaleString()} words`);
     
   } catch (error) {
     console.error('Error loading and compressing dictionary:', error);
@@ -120,17 +105,11 @@ export const isWordInCompressedDictionary = (word: string): boolean => {
     return false;
   }
   
-  const lowerCaseWord = word.toLowerCase().trim();
-  
-  // First check the common words cache for instant response
-  if (commonWordsCache.has(lowerCaseWord)) {
-    return true;
-  }
-  
   if (!dictionaryLoaded) {
     return false;
   }
   
+  const lowerCaseWord = word.toLowerCase().trim();
   let current = compressedDictionary;
   
   for (const char of lowerCaseWord) {
