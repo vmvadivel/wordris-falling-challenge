@@ -13,7 +13,7 @@ export const SPECIAL_LETTERS: SpecialLetterEffect[] = [
   {
     letter: "Z",
     name: "Column Clear",
-    description: "Clears all letters in the same column",
+    description: "Clears column (or 4 random columns for 5+ letter words)",
     color: "#fca5a5", // Brighter red
     borderColor: "#ef4444", // Strong red border
     backgroundColor: "#fee2e2", // Light red bg with better contrast
@@ -21,8 +21,8 @@ export const SPECIAL_LETTERS: SpecialLetterEffect[] = [
   },
   {
     letter: "X",
-    name: "Area Clear",
-    description: "Clears all 8 adjacent tiles",
+    name: "Row Clear",
+    description: "Clears row (or top 4 rows for 5+ letter words)",
     color: "#fcd34d", // Brighter yellow
     borderColor: "#f59e0b", // Strong amber border
     backgroundColor: "#fef3c7", // Light yellow bg with better contrast
