@@ -1,5 +1,6 @@
+
 import React, { useEffect } from "react";
-import { Trophy, RotateCw, Share2, X } from "lucide-react";
+import { Trophy, RotateCw, Share2, X, HelpCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -8,6 +9,12 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { GameStats } from "@/types/game";
 
 interface GameOverModalProps {
@@ -56,7 +63,8 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
     }
   };
 
-  // Determine which achievements to show
+  // Determine which achievements to show (commented out for now)
+  /*
   const getAchievements = () => {
     const achievements = [];
     
@@ -74,32 +82,7 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
     
     return stats.achievements || achievements;
   };
-
-  // Render grid visualization based on words formed
-  const renderGridVisualization = () => {
-    // Simple grid visualization based on score
-    const cellCount = Math.min(9, Math.ceil(stats.score / 50));
-    const cells = [];
-    
-    for (let i = 0; i < cellCount; i++) {
-      const isTopRow = i < 3;
-      const color = isTopRow ? "bg-orange-400" : "bg-green-500";
-      cells.push(
-        <div 
-          key={i} 
-          className={`${color} w-8 h-8 rounded-md`}
-        />
-      );
-    }
-    
-    return (
-      <div className="grid grid-cols-3 gap-1 w-max mx-auto">
-        {cells}
-      </div>
-    );
-  };
-
-  const achievements = getAchievements();
+  */
 
   // Handle dialog close and restart game
   const handleDialogChange = (open: boolean) => {
@@ -119,96 +102,188 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
   console.log("### GameOverModal rendering with isOpen:", isOpen);
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleDialogChange}>
-      <DialogContent className="bg-white text-black w-[90%] max-w-md mx-auto p-0 overflow-hidden rounded-xl">
-        <DialogHeader className="pt-8 pb-2 px-6 relative">
-          <DialogDescription className="sr-only">
-            Game over details and statistics
-          </DialogDescription>
-          {/* Removed the custom X button here, now using only the built-in Dialog close button */}
-          <div className="flex items-center justify-center mb-2">
-            <Trophy className="h-8 w-8 text-yellow-400" />
-          </div>
-          <DialogTitle className="text-2xl font-bold text-center text-black mb-1">Game Over!</DialogTitle>
-          <p className="text-center text-gray-600">
-            Your final score is <span className="font-bold text-gray-700">{stats.score}</span> points at level <span className="font-bold text-gray-700">{stats.level}</span>
-          </p>
-        </DialogHeader>
-        
-        <div className="p-6 space-y-6">
-          {/* Statistics Section */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-bold mb-3">Statistics</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-700">Final Score:</span>
-                <span className="font-bold">{stats.score}</span>
+    <TooltipProvider>
+      <Dialog open={isOpen} onOpenChange={handleDialogChange}>
+        <DialogContent className="bg-white text-black w-[90%] max-w-md mx-auto p-0 overflow-hidden rounded-xl">
+          <DialogHeader className="pt-8 pb-2 px-6 relative">
+            <DialogDescription className="sr-only">
+              Game over details and statistics
+            </DialogDescription>
+            
+            {/* Animated Trophy Icon */}
+            <div className="flex items-center justify-center mb-4 relative">
+              <div className="trophy-container relative">
+                <Trophy className="h-12 w-12 text-yellow-400 trophy-icon" />
+                {/* Sparkle animations */}
+                <div className="sparkle sparkle-1"></div>
+                <div className="sparkle sparkle-2"></div>
+                <div className="sparkle sparkle-3"></div>
+                <div className="sparkle sparkle-4"></div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-700">Level Reached:</span>
-                <span className="font-bold">{stats.level}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-700">Letters Placed:</span>
-                <span className="font-bold">{stats.lettersPlaced || 0}</span>
-              </div>
-              {stats.signatureWord && (
+            </div>
+            
+            <DialogTitle className="text-2xl font-bold text-center text-black mb-1">Game Over!</DialogTitle>
+            <p className="text-center text-gray-600">
+              Your final score is <span className="font-bold text-gray-700">{stats.score}</span> points at level <span className="font-bold text-gray-700">{stats.level}</span>
+            </p>
+          </DialogHeader>
+          
+          <div className="p-6 space-y-6">
+            {/* Statistics Section */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-bold mb-3">Game Statistics</h3>
+              <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-green-600 font-medium">Signature Word:</span>
-                  <span className="font-bold text-green-600">
-                    {stats.signatureWord.word.toUpperCase()} ({stats.signatureWord.score}pts)
-                  </span>
+                  <span className="text-gray-700">Final Score:</span>
+                  <span className="font-bold">{stats.score}</span>
                 </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Time Stats */}
-          <div className="flex justify-between">
-            <span className="text-gray-700">Time Played:</span>
-            <span className="font-bold">{formatTime(stats.timeElapsed)}</span>
-          </div>
-          
-          {/* Achievements Section */}
-          {achievements.length > 0 && (
-            <div>
-              <h3 className="text-lg font-bold mb-3">Achievements</h3>
-              <div className="flex flex-wrap gap-2">
-                {achievements.map((achievement, idx) => (
-                  <span 
-                    key={idx} 
-                    className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium inline-flex items-center"
-                  >
-                    <span className="mr-1">⭐</span> {achievement}
-                  </span>
-                ))}
+                <div className="flex justify-between">
+                  <span className="text-gray-700">Level Reached:</span>
+                  <span className="font-bold">{stats.level}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-700">Time Played:</span>
+                  <span className="font-bold">{formatTime(stats.timeElapsed)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-700">Words Formed:</span>
+                  <span className="font-bold">{stats.wordsFormed || 0}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-700">Letters Placed:</span>
+                  <span className="font-bold">{stats.lettersPlaced || 0}</span>
+                </div>
+                
+                {/* Signature Word with Tooltip */}
+                {stats.signatureWord && (
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-1">
+                      <span className="text-green-600 font-medium">Signature Word:</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="h-3 w-3 text-gray-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-sm">
+                            Your highest-scoring single word during this game session. 
+                            This includes base letter points, rarity bonuses, and any special effects.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <span className="font-bold text-green-600">
+                      {stats.signatureWord.word.toUpperCase()} ({stats.signatureWord.score}pts)
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
-          )}
-          
-          {/* Action Buttons */}
-          <div className="grid grid-cols-1 gap-3 pt-2">
-            {/* Share button commented out for now
-            <Button 
-              variant="outline" 
-              onClick={handleShare} 
-              className="border-gray-300"
-            >
-              <Share2 className="h-4 w-4 mr-2" />
-              Share Score
-            </Button>
+            
+            {/* Achievements Section - Commented out but easy to re-enable */}
+            {/*
+            {achievements.length > 0 && (
+              <div>
+                <h3 className="text-lg font-bold mb-3">Achievements</h3>
+                <div className="flex flex-wrap gap-2">
+                  {achievements.map((achievement, idx) => (
+                    <span 
+                      key={idx} 
+                      className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium inline-flex items-center"
+                    >
+                      <span className="mr-1">⭐</span> {achievement}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
             */}
-            <Button 
-              onClick={onRestart} 
-              className="bg-gray-900 hover:bg-gray-800 text-white"
-            >
-              <RotateCw className="h-4 w-4 mr-2" />
-              Play Again
-            </Button>
+            
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 gap-3 pt-2">
+              <Button 
+                onClick={onRestart} 
+                className="bg-gray-900 hover:bg-gray-800 text-white py-3"
+              >
+                <RotateCw className="h-4 w-4 mr-2" />
+                Play Again
+              </Button>
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+          
+          {/* CSS for trophy animation */}
+          <style jsx>{`
+            .trophy-container {
+              position: relative;
+              animation: trophy-bounce 2s ease-in-out infinite;
+            }
+            
+            .trophy-icon {
+              filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.3));
+            }
+            
+            .sparkle {
+              position: absolute;
+              width: 4px;
+              height: 4px;
+              background: linear-gradient(45deg, #fbbf24, #f59e0b);
+              border-radius: 50%;
+              animation: sparkle 2s linear infinite;
+            }
+            
+            .sparkle-1 {
+              top: -8px;
+              left: -8px;
+              animation-delay: 0s;
+            }
+            
+            .sparkle-2 {
+              top: -8px;
+              right: -8px;
+              animation-delay: 0.5s;
+            }
+            
+            .sparkle-3 {
+              bottom: -8px;
+              left: -8px;
+              animation-delay: 1s;
+            }
+            
+            .sparkle-4 {
+              bottom: -8px;
+              right: -8px;
+              animation-delay: 1.5s;
+            }
+            
+            @keyframes trophy-bounce {
+              0%, 100% { transform: translateY(0px) scale(1); }
+              50% { transform: translateY(-4px) scale(1.05); }
+            }
+            
+            @keyframes sparkle {
+              0%, 100% { 
+                opacity: 0; 
+                transform: scale(0) rotate(0deg);
+              }
+              50% { 
+                opacity: 1; 
+                transform: scale(1) rotate(180deg);
+              }
+            }
+            
+            /* Respect reduced motion preferences */
+            @media (prefers-reduced-motion: reduce) {
+              .trophy-container {
+                animation: none;
+              }
+              .sparkle {
+                animation: none;
+                opacity: 0.3;
+              }
+            }
+          `}</style>
+        </DialogContent>
+      </Dialog>
+    </TooltipProvider>
   );
 };
 
