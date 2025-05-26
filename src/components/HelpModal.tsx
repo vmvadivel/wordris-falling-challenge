@@ -20,31 +20,24 @@ const HelpModal = ({ open, onOpenChange }: HelpModalProps) => {
         
         <div className="space-y-4 text-gray-200">
           <section>
-            <h3 className="text-base font-semibold text-white mb-1">🎯 Goal</h3>
-            <p className="text-sm">Click letter tiles to form valid English words and score points.</p>
+            <h3 className="text-base font-semibold text-white mb-1">Rules</h3>
+            <p className="text-sm">Letters continuously fall from the top of the screen, filling the grid. Your objective is to select letters from the grid to form valid words. Each word you create must be at least three letters long.
+
+Once you've formed a valid word, hit the ✓ (submit) button to clear those letters. They'll disappear, and letters from above will fall to fill the gaps. If you make a mistake or want to try a different word, simply press the ✗ (clear) button to deselect your current letters.
+
+The game continues until the letter stack reaches the top of the screen.
+              </p>
           </section>
 
-          <section>
-            <h3 className="text-base font-semibold text-white mb-1">🎮 Controls</h3>
-            <ul className="text-sm space-y-1 list-disc list-inside">
-              <li>Click letters to select them</li>
-              <li>Submit with ✓ button or Enter key</li>
-              <li>Clear with ✗ button or Escape key</li>
-            </ul>
-          </section>
 
           <section>
             <h3 className="text-base font-semibold text-white mb-1">⚡ Special Letters</h3>
-            <p className="text-sm">Use multipliers (2x, 3x), wildcards (★), and time bonuses (+T) for higher scores.</p>
+            <p className="text-sm">Keep an eye out for special characters like Q, Z, X, J, and P! Forming words that include these letters will grant you additional benefits and strategic advantages. For a detailed explanation of these power-ups and how they can help you, click on the Power-Up button located in the game control area.
+            </p>
           </section>
 
           <section>
-            <h3 className="text-base font-semibold text-white mb-1">⏰ Time Challenge</h3>
-            <p className="text-sm">Starting at level 3, form words before time runs out!</p>
-          </section>
-
-          <section>
-            <h3 className="text-base font-semibold text-white mb-1">💡 Tips</h3>
+            <h3 className="text-base font-semibold text-white mb-1">Tips</h3>
             <ul className="text-sm space-y-1 list-disc list-inside">
               <li>Longer words = more points</li>
               <li>Save special letters for big words</li>
