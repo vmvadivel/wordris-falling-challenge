@@ -70,13 +70,3 @@ export const clearPrefixCache = (): void => {
   validPrefixCache.clear();
   invalidPrefixCache.clear();
 };
-
-/**
- * Get cache statistics
- */
-export const getPrefixCacheStats = (): { validEntries: number; invalidEntries: number } => {
-  return {
-    validEntries: validPrefixCache.size,
-    invalidEntries: invalidPrefixCache.size,
-  };
-};

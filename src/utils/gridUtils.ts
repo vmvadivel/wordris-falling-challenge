@@ -1,18 +1,5 @@
+
 import { Position } from "@/types/game";
-
-// Check if two cells are adjacent (horizontally, vertically, or diagonally)
-export const areAdjacent = (pos1: Position, pos2: Position): boolean => {
-  const rowDiff = Math.abs(pos1.row - pos2.row);
-  const colDiff = Math.abs(pos1.col - pos2.col);
-  
-  // Adjacent if they're at most one cell away in any direction
-  return rowDiff <= 1 && colDiff <= 1 && !(rowDiff === 0 && colDiff === 0);
-};
-
-// Check if a position exists on the grid (within bounds)
-export const isValidPosition = (pos: Position, gridSize: number): boolean => {
-  return pos.row >= 0 && pos.row < gridSize && pos.col >= 0 && pos.col < gridSize;
-};
 
 // Get cells that will drop after removing selected cells
 export const getCellsToUpdate = (grid: string[][], selectedPositions: Position[]): Position[] => {
@@ -158,17 +145,6 @@ export const isGridFull = (grid: string[][]): boolean => {
   
   console.log("### isGridFull: TOP ROW IS COMPLETELY FULL - GAME OVER!");
   return true; // Top row is completely full
-};
-
-// Memoization key generators - these help create unique cache keys based on inputs
-export const generateGridKey = (grid: string[][]): string => {
-  // Create a string representation of the grid's top row (which is what matters for isGridFull)
-  return grid[0].map(cell => cell === null ? '_' : cell).join('');
-};
-
-export const generateFallingLettersKey = (fallingLetters: { row: number; col: number; id: string }[]): string => {
-  // Create a string representation of all falling letters' positions
-  return fallingLetters.map(l => `${l.id}:${l.row},${l.col}`).sort().join('|');
 };
 
 // Get all available columns for spawning new letters (columns with null in top row)
