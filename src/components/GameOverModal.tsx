@@ -211,7 +211,7 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
           </div>
           
           {/* CSS for trophy animation */}
-          <style jsx>{`
+          <style>{`
             .trophy-container {
               position: relative;
               animation: trophy-bounce 2s ease-in-out infinite;
