@@ -149,7 +149,8 @@ export const useGameLogic = (gameState: any, gridRef: React.RefObject<HTMLDivEle
       const comboBonus = newConsecutiveWords > 1 ? newConsecutiveWords * 5 : 0;
       const effectMultiplier = effects.scoreMultiplier || 1;
       const currentPointMultiplier = gameState.pointMultiplier;
-      const finalScore = (totalScore + comboBonus) * effectMultiplier * currentPointMultiplier;
+      const bonusPoints = effects.bonusPoints || 0;
+      const finalScore = (totalScore + comboBonus + bonusPoints) * effectMultiplier * currentPointMultiplier;
       
       gameState.setLettersPlaced((prev: number) => prev + positions.length);
       
@@ -170,7 +171,8 @@ export const useGameLogic = (gameState: any, gridRef: React.RefObject<HTMLDivEle
         isValid: true, 
         score: finalScore,
         baseScore,
-        rarityBonus
+        rarityBonus,
+        bonusPoints
       }, newConsecutiveWords);
       
       if (currentPointMultiplier > 1) {

@@ -1,9 +1,11 @@
 
 import { Position } from "@/types/game";
+import { letterRarityPoints } from "@/utils/dictionaryService";
 
 interface SpecialLetterEffectResult {
   hasAppliedEffect: boolean;
   scoreMultiplier: number;
+  bonusPoints?: number;
 }
 
 /**
@@ -33,6 +35,7 @@ export const processSpecialLetterEffects = (
   
   let scoreMultiplier = 1;
   let hasAppliedEffect = false;
+  let totalBonusPoints = 0;
   const wordLength = word.length;
   
   // Process each letter in the word
@@ -53,9 +56,13 @@ export const processSpecialLetterEffects = (
     if (result.hasAppliedEffect) {
       hasAppliedEffect = true;
     }
+    
+    if (result.bonusPoints) {
+      totalBonusPoints += result.bonusPoints;
+    }
   }
   
-  return { hasAppliedEffect, scoreMultiplier };
+  return { hasAppliedEffect, scoreMultiplier, bonusPoints: totalBonusPoints };
 };
 
 // Individual effect handlers
@@ -79,6 +86,7 @@ function handleColumnClearEffect(position: Position | undefined, callbacks: any,
   if (!position) return { hasAppliedEffect: false, scoreMultiplier: 1 };
   
   const { setGrid } = callbacks;
+  let bonusPoints = 0;
   
   setGrid(prevGrid => {
     const newGrid = [...prevGrid];
@@ -94,29 +102,38 @@ function handleColumnClearEffect(position: Position | undefined, callbacks: any,
         columnsTooClear.push(availableColumns.splice(randomIndex, 1)[0]);
       }
       
-      // Clear the selected columns
+      // Clear the selected columns and calculate bonus points
       columnsTooClear.forEach(col => {
         for (let row = 0; row < newGrid.length; row++) {
-          newGrid[row][col] = null;
+          const letter = newGrid[row][col];
+          if (letter) {
+            bonusPoints += letterRarityPoints[letter] || 1;
+            newGrid[row][col] = null;
+          }
         }
       });
     } else {
       // Clear the single column for words of 3-4 letters (existing behavior)
       for (let row = 0; row < newGrid.length; row++) {
-        newGrid[row][position.col] = null;
+        const letter = newGrid[row][position.col];
+        if (letter) {
+          bonusPoints += letterRarityPoints[letter] || 1;
+          newGrid[row][position.col] = null;
+        }
       }
     }
     
     return newGrid;
   });
   
-  return { hasAppliedEffect: true, scoreMultiplier: 1 };
+  return { hasAppliedEffect: true, scoreMultiplier: 1, bonusPoints };
 }
 
 function handleRowClearEffect(position: Position | undefined, callbacks: any, wordLength: number = 3, grid: string[][]): SpecialLetterEffectResult {
   if (!position) return { hasAppliedEffect: false, scoreMultiplier: 1 };
   
   const { setGrid } = callbacks;
+  let bonusPoints = 0;
   
   setGrid(prevGrid => {
     const newGrid = [...prevGrid];
@@ -125,20 +142,28 @@ function handleRowClearEffect(position: Position | undefined, callbacks: any, wo
       // Clear top 4 rows for words of 5+ letters
       for (let row = 0; row < Math.min(4, newGrid.length); row++) {
         for (let col = 0; col < newGrid[row].length; col++) {
-          newGrid[row][col] = null;
+          const letter = newGrid[row][col];
+          if (letter) {
+            bonusPoints += letterRarityPoints[letter] || 1;
+            newGrid[row][col] = null;
+          }
         }
       }
     } else {
       // Clear the single row for words of 3-4 letters
       for (let col = 0; col < newGrid[position.row].length; col++) {
-        newGrid[position.row][col] = null;
+        const letter = newGrid[position.row][col];
+        if (letter) {
+          bonusPoints += letterRarityPoints[letter] || 1;
+          newGrid[position.row][col] = null;
+        }
       }
     }
     
     return newGrid;
   });
   
-  return { hasAppliedEffect: true, scoreMultiplier: 1 };
+  return { hasAppliedEffect: true, scoreMultiplier: 1, bonusPoints };
 }
 
 function handleDoubleScoreEffect(_position: Position | undefined, _callbacks: any): SpecialLetterEffectResult {

@@ -1,4 +1,3 @@
-
 export type Cell = string | null;
 export type GameGrid = Cell[][];
 
@@ -24,6 +23,7 @@ export type WordValidationResult = {
   score?: number;
   baseScore?: number;
   rarityBonus?: number;
+  bonusPoints?: number;
 };
 
 export type SpecialLetterEffect = {
