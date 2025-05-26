@@ -37,7 +37,7 @@ The game continues until the letter stack reaches the top of the screen.
           </section>
 
           <section>
-            <h3 className="text-base font-semibold text-white mb-1">Tips</h3>
+            <h3 className="text-base font-semibold text-white mb-1">💡Tips</h3>
             <ul className="text-sm space-y-1 list-disc list-inside">
               <li>Longer words = more points</li>
               <li>Save special letters for big words</li>
