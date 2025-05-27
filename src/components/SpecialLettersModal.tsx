@@ -53,7 +53,7 @@ const SpecialLettersModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md md:max-w-lg bg-gray-900 border-gray-800 text-white p-0">
+      <DialogContent className="sm:max-w-md md:max-w-lg bg-gray-900 border-gray-800 text-white p-0 special-letters-modal">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="text-xl md:text-2xl">Special Letters</DialogTitle>
           <DialogDescription className="text-gray-400">
@@ -62,7 +62,7 @@ const SpecialLettersModal = ({
         </DialogHeader>
         
         <div className="px-6 py-3">
-          <ScrollArea className="pr-4" style={{ height: 'auto', maxHeight: '60vh' }}>
+          <ScrollArea className="pr-4 modal-content" style={{ height: 'auto', maxHeight: '60vh' }}>
             <div className="flex flex-col gap-3 pb-1">
               {specialLetters.map((item) => (
                 <div

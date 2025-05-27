@@ -32,7 +32,7 @@ const Index = () => {
   }, [gameState]);
   
   return (
-    <div className="min-h-screen h-screen bg-gray-950 flex flex-col overflow-hidden" style={{ paddingTop: 'var(--safe-area-inset-top)', paddingLeft: 'var(--safe-area-inset-left)', paddingRight: 'var(--safe-area-inset-right)' }}>
+    <div className="min-h-screen h-screen bg-gray-950 flex flex-col overflow-hidden main-content-with-footer" style={{ paddingTop: 'var(--safe-area-inset-top)', paddingLeft: 'var(--safe-area-inset-left)', paddingRight: 'var(--safe-area-inset-right)' }}>
       {/* Title Section */}
       <div className="text-center py-2 md:py-4 w-full flex-shrink-0 px-4">
         <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-white">Wordris</h1>    
@@ -70,10 +70,10 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Footer - Always visible */}
+      {/* Footer - Fixed positioning */}
       <Footer />
       
-      {/* Modals */}
+      {/* Modals with responsive classes */}
       <SpecialLettersModal
         open={gameState.showSpecialLettersModal}
         onOpenChange={gameState.setShowSpecialLettersModal}

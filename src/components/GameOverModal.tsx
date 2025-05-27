@@ -66,27 +66,6 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
     }
   };
 
-  // Determine which achievements to show (commented out for now)
-  /*
-  const getAchievements = () => {
-    const achievements = [];
-    
-    if ((stats.wordsFormed || 0) >= 5) {
-      achievements.push("Word Wizard");
-    }
-    
-    if ((stats.lettersPlaced || 0) >= 50) {
-      achievements.push("Word Factory");
-    }
-    
-    if (stats.score >= 300) {
-      achievements.push("Score Master");
-    }
-    
-    return stats.achievements || achievements;
-  };
-  */
-
   // Handle dialog close and restart game
   const handleDialogChange = (open: boolean) => {
     console.log("### GameOverModal handleDialogChange called with open:", open);
@@ -107,7 +86,7 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
   return (
     <TooltipProvider>
       <Dialog open={isOpen} onOpenChange={handleDialogChange}>
-        <DialogContent className="bg-white text-black w-[90%] max-w-md mx-auto p-0 overflow-hidden rounded-xl">
+        <DialogContent className="bg-white text-black w-[90%] max-w-md mx-auto p-0 overflow-hidden rounded-xl game-over-modal">
           <DialogHeader className="pt-8 pb-2 px-6 relative">
             <DialogDescription className="sr-only">
               Game over details and statistics
@@ -151,7 +130,7 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
             </p>
           </DialogHeader>
           
-          <div className="p-6 space-y-6">
+          <div className="p-6 space-y-6 modal-content">
             {/* New Record Banner */}
             {isNewHighScore && (
               <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-4 py-2 rounded-lg text-center font-bold text-lg shadow-lg new-record-banner">
@@ -219,25 +198,6 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
                 )}
               </div>
             </div>
-            
-            {/* Achievements Section - Commented out but easy to re-enable */}
-            {/*
-            {achievements.length > 0 && (
-              <div>
-                <h3 className="text-lg font-bold mb-3">Achievements</h3>
-                <div className="flex flex-wrap gap-2">
-                  {achievements.map((achievement, idx) => (
-                    <span 
-                      key={idx} 
-                      className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium inline-flex items-center"
-                    >
-                      <span className="mr-1">⭐</span> {achievement}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            */}
             
             {/* Action Buttons */}
             <div className="grid grid-cols-1 gap-3 pt-2">

@@ -95,11 +95,23 @@
   }
   
   .mobile-landscape-controls {
-    @apply w-56 flex-shrink-0;
+    @apply w-80 flex-shrink-0; /* Increased from w-56 to w-80 (320px) for better icon visibility */
   }
   
   .mobile-landscape-grid {
     @apply h-[calc(100vh-8rem)] max-h-[calc(100vh-8rem)];
+  }
+
+  /* Specific control panel sizing for mobile landscape */
+  .mobile-landscape-control-panel {
+    @apply h-full max-h-none flex flex-col;
+  }
+}
+
+/* Desktop/laptop specific styles - restore compact control panel */
+@media screen and (min-width: 1024px) {
+  .desktop-control-panel {
+    @apply max-h-[450px]; /* Restore compact height on desktop */
   }
 }
 
@@ -169,4 +181,73 @@ html, body {
 
 .animate-shake {
   animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Modal responsive styles for landscape mode */
+@media screen and (max-width: 1023px) and (orientation: landscape) {
+  /* Make dialogs responsive in landscape */
+  [role="dialog"] {
+    max-width: 90vw !important;
+    max-height: 85vh !important;
+    width: auto !important;
+  }
+
+  /* Ensure dialog content is scrollable */
+  [role="dialog"] > div {
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+
+  /* Special handling for game over modal */
+  .game-over-modal {
+    max-width: 85vw !important;
+    max-height: 80vh !important;
+  }
+
+  .game-over-modal .modal-content {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  /* Help modal specific adjustments */
+  .help-modal {
+    max-width: 85vw !important;
+    max-height: 80vh !important;
+  }
+
+  .help-modal .modal-content {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+
+  /* Special letters modal adjustments */
+  .special-letters-modal {
+    max-width: 85vw !important;
+    max-height: 80vh !important;
+  }
+
+  .special-letters-modal .modal-content {
+    max-height: 65vh;
+    overflow-y: auto;
+  }
+}
+
+/* Footer improvements for all devices */
+.footer-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding-bottom: calc(0.5rem + var(--safe-area-inset-bottom));
+  padding-left: calc(1rem + var(--safe-area-inset-left));
+  padding-right: calc(1rem + var(--safe-area-inset-right));
+  background-color: rgb(17 24 39); /* gray-900 */
+  border-top: 1px solid rgb(31 41 55); /* gray-800 */
+}
+
+/* Ensure main content doesn't overlap footer */
+.main-content-with-footer {
+  padding-bottom: calc(3rem + var(--safe-area-inset-bottom));
 }

@@ -26,7 +26,7 @@ const ControlPanel = (props: ControlPanelProps) => {
 
   return (
     <>
-      <Card className="w-full bg-gray-900 border-gray-800 flex flex-col h-full max-h-[min(450px,65vh)] lg:max-h-none">
+      <Card className="w-full bg-gray-900 border-gray-800 flex flex-col h-full desktop-control-panel mobile-landscape-control-panel">
         <CardContent className="space-y-3 flex-1 py-2 flex flex-col justify-between">
           {/* Current Word Section */}
           <div className="space-y-3">
@@ -100,18 +100,18 @@ const ControlPanel = (props: ControlPanelProps) => {
               </div>
             )}
 
-            {/* Action buttons */}
+            {/* Action buttons - Better spacing and responsive sizing */}
             <TooltipProvider>
-              <div className="flex justify-center gap-3 pb-2">
+              <div className="flex justify-center gap-2 pb-2 px-1">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button 
                       variant="outline" 
                       size="icon" 
-                      className="h-10 w-10 md:h-12 md:w-12 bg-gray-800 hover:bg-purple-900 border-gray-700 shadow-md"
+                      className="h-10 w-10 lg:h-12 lg:w-12 bg-gray-800 hover:bg-purple-900 border-gray-700 shadow-md flex-shrink-0"
                       onClick={props.onShowSpecialLetters}
                     >
-                      <Zap className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
+                      <Zap className="h-4 w-4 lg:h-5 lg:w-5 text-purple-400" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -124,10 +124,10 @@ const ControlPanel = (props: ControlPanelProps) => {
                     <Button 
                       variant="outline" 
                       size="icon" 
-                      className="h-10 w-10 md:h-12 md:w-12 bg-gray-800 hover:bg-blue-900 border-gray-700 shadow-md"
+                      className="h-10 w-10 lg:h-12 lg:w-12 bg-gray-800 hover:bg-blue-900 border-gray-700 shadow-md flex-shrink-0"
                       onClick={props.onResetGame}
                     >
-                      <RotateCw className="h-5 w-5 md:h-6 md:w-6 text-blue-400" />
+                      <RotateCw className="h-4 w-4 lg:h-5 lg:w-5 text-blue-400" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -140,10 +140,10 @@ const ControlPanel = (props: ControlPanelProps) => {
                     <Button 
                       variant="outline" 
                       size="icon" 
-                      className="h-10 w-10 md:h-12 md:w-12 bg-gray-800 hover:bg-green-900 border-gray-700 shadow-md"
+                      className="h-10 w-10 lg:h-12 lg:w-12 bg-gray-800 hover:bg-green-900 border-gray-700 shadow-md flex-shrink-0"
                       onClick={() => setShowHelpModal(true)}
                     >
-                      <HelpCircle className="h-5 w-5 md:h-6 md:w-6 text-green-400" />
+                      <HelpCircle className="h-4 w-4 lg:h-5 lg:w-5 text-green-400" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>

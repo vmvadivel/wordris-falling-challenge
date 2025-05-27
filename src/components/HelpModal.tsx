@@ -10,7 +10,7 @@ interface HelpModalProps {
 const HelpModal = ({ open, onOpenChange }: HelpModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-lg">
+      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-lg help-modal">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white">How to Play Wordris</DialogTitle>
           <DialogDescription className="text-gray-300">
@@ -18,7 +18,7 @@ const HelpModal = ({ open, onOpenChange }: HelpModalProps) => {
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4 text-gray-200">
+        <div className="space-y-4 text-gray-200 modal-content">
           <section>
             <h3 className="text-base font-semibold text-white mb-1">Rules</h3>
             <p className="text-sm">Letters continuously fall from the top of the screen, filling the grid. Your objective is to select letters from the grid to form valid words. Each word you create must be at least three letters long.
@@ -28,7 +28,6 @@ Once you've formed a valid word, hit the ✓ (submit) button to clear those lett
 The game continues until the letter stack reaches the top of the screen.
               </p>
           </section>
-
 
           <section>
             <h3 className="text-base font-semibold text-white mb-1">⚡ Special Letters</h3>
