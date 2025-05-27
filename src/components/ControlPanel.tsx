@@ -26,33 +26,31 @@ const ControlPanel = (props: ControlPanelProps) => {
 
   return (
     <>
-      <Card className="w-full bg-gray-900 border-gray-800 flex flex-col h-full desktop-control-panel mobile-landscape-control-panel">
-        <CardContent className="space-y-3 flex-1 py-2 flex flex-col justify-between">
+      <Card className="w-full bg-gray-900 border-gray-800 control-panel-responsive">
+        <CardContent className="space-y-3 py-4">
           {/* Current Word Section */}
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <p className="text-sm text-gray-400">Current Word</p>
-              <div ref={props.wordBoxRef} className="flex gap-2 items-center">
-                <div className="p-2 bg-gray-800 rounded-md text-white font-medium text-center flex-1 min-w-0">
-                  {props.currentWord || "-"}
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="h-8 w-8 bg-gray-800 hover:bg-gray-700 border-gray-700 flex-shrink-0"
-                  onClick={props.onClearWord}
-                >
-                  <X className="h-4 w-4 text-white" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="h-8 w-8 bg-gray-800 hover:bg-gray-700 border-gray-700 flex-shrink-0"
-                  onClick={props.onSubmitWord}
-                >
-                  <Check className="h-4 w-4 text-white" />
-                </Button>
+          <div className="space-y-2">
+            <p className="text-sm text-gray-400">Current Word</p>
+            <div ref={props.wordBoxRef} className="flex gap-2 items-center">
+              <div className="p-2 bg-gray-800 rounded-md text-white font-medium text-center flex-1 min-w-0">
+                {props.currentWord || "-"}
               </div>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-8 w-8 bg-gray-800 hover:bg-gray-700 border-gray-700 flex-shrink-0"
+                onClick={props.onClearWord}
+              >
+                <X className="h-4 w-4 text-white" />
+              </Button>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-8 w-8 bg-gray-800 hover:bg-gray-700 border-gray-700 flex-shrink-0"
+                onClick={props.onSubmitWord}
+              >
+                <Check className="h-4 w-4 text-white" />
+              </Button>
             </div>
           </div>
 
@@ -100,9 +98,9 @@ const ControlPanel = (props: ControlPanelProps) => {
               </div>
             )}
 
-            {/* Action buttons - Better spacing and responsive sizing */}
+            {/* Action buttons */}
             <TooltipProvider>
-              <div className="flex justify-center gap-2 pb-2 px-1">
+              <div className="flex justify-center gap-2 pt-1">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button 
