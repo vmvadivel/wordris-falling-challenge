@@ -63,18 +63,18 @@ const GameBoard = ({
     if (pointMultiplier <= 1) return null;
     
     return (
-      <div className="absolute top-2 right-2 bg-purple-800 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse">
+      <div className="absolute top-2 right-2 bg-purple-800 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse z-20">
         {pointMultiplier}x Points
       </div>
     );
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center relative">
+    <div className="relative w-full h-full flex items-center justify-center">
       {renderPointMultiplierIndicator()}
       <div 
         ref={gridRef}
-        className="grid grid-cols-8 gap-1 aspect-square w-full h-full max-w-[min(80vw,80vh,650px)] max-h-[min(80vw,80vh,650px)] min-w-[240px] min-h-[240px]"
+        className="grid grid-cols-8 gap-1 aspect-square w-full h-full max-w-[min(90vw,calc(100vh-12rem),650px)] max-h-[min(90vw,calc(100vh-12rem),650px)] mobile-landscape-grid min-w-[240px] min-h-[240px]"
       >
         {renderGrid}
       </div>

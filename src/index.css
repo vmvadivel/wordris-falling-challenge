@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -73,6 +74,45 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Safe area handling for modern devices */
+:root {
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+}
+
+/* Custom responsive utilities for mobile landscape */
+@media screen and (max-width: 1023px) and (orientation: landscape) {
+  .mobile-landscape-row {
+    @apply flex-row;
+  }
+  
+  .mobile-landscape-game-area {
+    @apply flex-1 min-w-0;
+  }
+  
+  .mobile-landscape-controls {
+    @apply w-56 flex-shrink-0;
+  }
+  
+  .mobile-landscape-grid {
+    @apply h-[calc(100vh-8rem)] max-h-[calc(100vh-8rem)];
+  }
+}
+
+/* Ensure proper viewport handling */
+html, body {
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height for better mobile support */
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Grid cell styles and animations */
