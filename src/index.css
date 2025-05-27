@@ -90,14 +90,27 @@
   @apply flex flex-col max-w-xs;
 }
 
-/* Mobile Portrait: Full width, compact spacing */
+/* Mobile Portrait: Full width, proper vertical stacking */
 @media screen and (max-width: 1023px) and (orientation: portrait) {
   .control-panel-responsive {
     @apply max-w-none w-full;
   }
+  
+  /* Ensure proper spacing between game grid and control panel in mobile portrait */
+  .mobile-portrait-container {
+    @apply flex flex-col gap-4 h-full;
+  }
+  
+  .mobile-portrait-grid {
+    @apply flex-1 min-h-0 flex items-center justify-center;
+  }
+  
+  .mobile-portrait-controls {
+    @apply flex-shrink-0 w-full;
+  }
 }
 
-/* Mobile Landscape: Fixed width, full height with proper spacing */
+/* Mobile Landscape: Fixed width, side-by-side layout */
 @media screen and (max-width: 1023px) and (orientation: landscape) {
   .control-panel-responsive {
     @apply w-80 max-w-none h-full flex flex-col;

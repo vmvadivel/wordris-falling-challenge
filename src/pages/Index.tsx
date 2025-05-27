@@ -39,9 +39,9 @@ const Index = () => {
       </div>
 
       {/* Game Container - Responsive Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row mobile-landscape-row gap-2 md:gap-4 justify-center items-stretch px-2 md:px-4 min-h-0">
+      <div className="flex-1 flex flex-col lg:flex-row mobile-landscape-row mobile-portrait-container gap-2 md:gap-4 justify-center items-stretch px-2 md:px-4 min-h-0">
         {/* Game Grid */}
-        <div className="flex-1 mobile-landscape-game-area flex items-center justify-center min-h-0">
+        <div className="flex-1 mobile-landscape-game-area mobile-portrait-grid flex items-center justify-center min-h-0">
           <GameBoard 
             grid={gameState.grid}
             fallingLetters={gameState.fallingLetters}
@@ -53,7 +53,7 @@ const Index = () => {
         </div>
 
         {/* Control Panel */}
-        <div className="w-full lg:w-1/4 xl:w-72 mobile-landscape-controls flex-shrink-0">
+        <div className="w-full lg:w-1/4 xl:w-72 mobile-landscape-controls mobile-portrait-controls flex-shrink-0">
           <ControlPanel 
             score={gameState.score}
             level={gameState.level}
