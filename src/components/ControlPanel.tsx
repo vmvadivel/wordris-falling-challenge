@@ -1,4 +1,3 @@
-
 import React, { memo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,9 +26,9 @@ const ControlPanel = (props: ControlPanelProps) => {
   return (
     <>
       <Card className="w-full bg-gray-900 border-gray-800 flex flex-col h-full desktop-control-panel mobile-landscape-control-panel">
-        <CardContent className="space-y-3 flex-1 py-2 flex flex-col justify-between">
+        <CardContent className="flex-1 py-2 flex flex-col">
           {/* Current Word Section */}
-          <div className="space-y-3">
+          <div>
             <div className="space-y-1">
               <p className="text-sm text-gray-400">Current Word</p>
               <div ref={props.wordBoxRef} className="flex gap-2 items-center">
@@ -56,8 +55,8 @@ const ControlPanel = (props: ControlPanelProps) => {
             </div>
           </div>
 
-          {/* Score Section */}
-          <div className="space-y-3">
+          {/* Score, Level, High Score, Time Challenge, and Action Buttons */}
+          <div className="flex flex-col gap-3 mt-4 flex-1">
             {/* Score and Level */}
             <div className="flex justify-between gap-4">
               <div className="bg-gray-800 rounded-lg p-2 flex-1 flex flex-col items-center">
@@ -100,7 +99,7 @@ const ControlPanel = (props: ControlPanelProps) => {
               </div>
             )}
 
-            {/* Action buttons - Better spacing and responsive sizing */}
+            {/* Action buttons */}
             <TooltipProvider>
               <div className="flex justify-center gap-2 pb-2 px-1">
                 <Tooltip>
