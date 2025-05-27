@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback } from "react";
 import { useGameState } from "@/hooks/useGameState";
 import { useGameLogic } from "@/hooks/useGameLogic";
@@ -12,37 +11,40 @@ import Footer from "@/components/Footer";
 import { SPECIAL_LETTERS } from "@/utils/specialLetters";
 
 const Index = () => {
-  // Refs for animation control
   const gridRef = useRef<HTMLDivElement>(null);
   const wordBoxRef = useRef<HTMLDivElement>(null);
-  
-  // Custom hooks for state and logic
+
   const gameState = useGameState();
   const gameLogic = useGameLogic(gameState, gridRef, wordBoxRef);
-  
-  // Game loop
+
   useWordrisGameLoop(gameState, gameLogic);
 
-  // Handle game over modal closing and game restart
   const handleGameOverClose = useCallback((open: boolean) => {
     gameState.setIsGameOver(open);
     if (!open) {
       gameState.resetGame();
     }
   }, [gameState]);
-  
+
   return (
-    <div className="min-h-screen h-screen bg-gray-950 flex flex-col overflow-hidden main-content-with-footer" style={{ paddingTop: 'var(--safe-area-inset-top)', paddingLeft: 'var(--safe-area-inset-left)', paddingRight: 'var(--safe-area-inset-right)' }}>
+    <div
+      className="min-h-screen flex flex-col bg-gray-950"
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)'
+      }}
+    >
       {/* Title Section */}
       <div className="text-center py-2 md:py-4 w-full flex-shrink-0 px-4">
-        <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-white">Wordris</h1>    
+        <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-white">Wordris</h1>
       </div>
 
       {/* Game Container - Responsive Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row mobile-landscape-row mobile-portrait-container gap-2 md:gap-4 justify-center items-stretch px-2 md:px-4 min-h-0">
+      <div className="flex flex-col lg:flex-row flex-1 w-full max-w-6xl mx-auto gap-4 px-2 md:px-4 min-h-0 lg:items-center">
         {/* Game Grid */}
-        <div className="flex-1 mobile-landscape-game-area mobile-portrait-grid flex items-center justify-center min-h-0">
-          <GameBoard 
+        <div className="flex-1 flex items-center justify-center min-h-0">
+          <GameBoard
             grid={gameState.grid}
             fallingLetters={gameState.fallingLetters}
             selectedCells={gameState.selectedCells}
@@ -51,10 +53,9 @@ const Index = () => {
             gridRef={gridRef}
           />
         </div>
-
         {/* Control Panel */}
-        <div className="w-full lg:w-1/4 xl:w-72 mobile-landscape-controls mobile-portrait-controls flex-shrink-0">
-          <ControlPanel 
+        <div className="w-full lg:w-80 max-w-full lg:max-w-xs flex-shrink-0 mt-4 lg:mt-0 overflow-y-auto pb-safe">
+          <ControlPanel
             score={gameState.score}
             level={gameState.level}
             highScore={gameState.highScore}
@@ -69,19 +70,18 @@ const Index = () => {
           />
         </div>
       </div>
-      
-      {/* Footer - Fixed positioning */}
+
+      {/* Footer */}
       <Footer />
-      
-      {/* Modals with responsive classes */}
+
+      {/* Modals */}
       <SpecialLettersModal
         open={gameState.showSpecialLettersModal}
         onOpenChange={gameState.setShowSpecialLettersModal}
         specialLetters={SPECIAL_LETTERS}
       />
-      
-      <GameOverModal 
-        isOpen={gameState.isGameOver} 
+      <GameOverModal
+        isOpen={gameState.isGameOver}
         onOpenChange={handleGameOverClose}
         onClose={() => gameState.setIsGameOver(false)}
         onRestart={gameState.resetGame}
