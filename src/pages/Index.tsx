@@ -1,3 +1,4 @@
+
 import React, { useRef, useCallback } from "react";
 import { useGameState } from "@/hooks/useGameState";
 import { useGameLogic } from "@/hooks/useGameLogic";
@@ -8,6 +9,7 @@ import SpecialLettersModal from "@/components/SpecialLettersModal";
 import GameOverModal from "@/components/GameOverModal";
 import HelpModal from "@/components/HelpModal";
 import Footer from "@/components/Footer";
+import RotateDeviceOverlay from "@/components/RotateDeviceOverlay";
 import { SPECIAL_LETTERS } from "@/utils/specialLetters";
 
 const Index = () => {
@@ -35,6 +37,9 @@ const Index = () => {
         paddingRight: 'env(safe-area-inset-right)'
       }}
     >
+      {/* Rotate Device Overlay - shown on mobile landscape */}
+      <RotateDeviceOverlay />
+
       {/* Title Section */}
       <div className="text-center py-2 md:py-4 w-full flex-shrink-0 px-4">
         <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-white">Wordris</h1>

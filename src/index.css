@@ -201,6 +201,18 @@ html, body {
   animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
 }
 
+/* Rotation animation for rotate device overlay */
+@keyframes gentle-rotate {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(15deg); }
+  75% { transform: rotate(-15deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.animate-gentle-rotate {
+  animation: gentle-rotate 3s ease-in-out infinite;
+}
+
 /* Modal responsive styles for landscape mode */
 @media screen and (max-width: 1023px) and (orientation: landscape) {
   /* Make dialogs responsive in landscape */
