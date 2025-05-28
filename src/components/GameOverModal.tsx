@@ -174,10 +174,10 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
                   <span className="font-bold">{stats.lettersPlaced || 0}</span>
                 </div>
                 
-                {/* Signature Word with Tooltip */}
+                {/* Signature Word with Tooltip - Fixed alignment */}
                 {stats.signatureWord && (
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-1">
+                  <div className="flex justify-between">
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       <span className="text-green-600 font-medium">Signature Word:</span>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -191,7 +191,7 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
                         </TooltipContent>
                       </Tooltip>
                     </div>
-                    <span className="font-bold text-green-600">
+                    <span className="font-bold text-green-600 text-right">
                       {stats.signatureWord.word.toUpperCase()} ({stats.signatureWord.score}pts)
                     </span>
                   </div>
