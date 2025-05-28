@@ -59,7 +59,7 @@ const RotateDeviceOverlay = () => {
           Please rotate your device
         </h2>
         <p className="text-lg text-gray-300 leading-relaxed">
-          Please rotate your device to portrait mode to continue playing.
+          This game is best enjoyed in portrait mode. Please rotate your device.
         </p>
       </div>
     </div>
