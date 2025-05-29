@@ -194,7 +194,7 @@ export const useGameLogic = (gameState: any, gridRef: React.RefObject<HTMLDivEle
 
   // Update drop speed based on level
   useEffect(() => {
-    gameState.dropInterval.current = Math.max(300, 950 - (gameState.level - 1) * 25);
+    gameState.dropInterval.current = Math.max(300, 1000 - (gameState.level - 1) * 20);
   }, [gameState.level, gameState.dropInterval]);
 
   // Check for level up and high score
