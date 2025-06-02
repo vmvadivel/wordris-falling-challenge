@@ -33,6 +33,7 @@ export const useWordrisGameLoop = (gameState: any, gameLogic: any) => {
           }
         });
 
+        // Handle landed letters with improved game over detection
         if (landedLetters.length > 0) {
           gameState.setGrid((oldGrid: any) => {
             const newGrid = oldGrid.map((row: any) => [...row]);
@@ -40,14 +41,33 @@ export const useWordrisGameLoop = (gameState: any, gameLogic: any) => {
               newGrid[l.row][l.col] = l.letter;
             });
 
-            if (isGridFull(newGrid)) {
-              gameState.endGame();
+            // Improved game over check - ensure we actually can't place new letters
+            const canPlaceNewLetters = newGrid[0].some((cell: any) => cell === null);
+            const hasRoomForFalling = updatedLetters.length < 3 && canPlaceNewLetters;
+            
+            if (isGridFull(newGrid) && !hasRoomForFalling) {
+              // Double-check by verifying no movement is possible
+              let canAnyLetterMove = false;
+              for (let row = 0; row < newGrid.length - 1; row++) {
+                for (let col = 0; col < newGrid[0].length; col++) {
+                  if (newGrid[row][col] !== null && newGrid[row + 1][col] === null) {
+                    canAnyLetterMove = true;
+                    break;
+                  }
+                }
+                if (canAnyLetterMove) break;
+              }
+              
+              if (!canAnyLetterMove && isGridFull(newGrid)) {
+                gameState.endGame();
+              }
             }
 
             return newGrid;
           });
         }
 
+        // Update selected cells positions for falling letters
         if (updatedLetters.length > 0) {
           gameState.setSelectedCells((prevSelectedCells: any) => {
             return prevSelectedCells.map((selectedCell: any) => {
@@ -73,8 +93,16 @@ export const useWordrisGameLoop = (gameState: any, gameLogic: any) => {
       });
     }
 
+    // Improved spawning logic with better collision detection
     if (gameState.fallingLetters.length < 3 && Math.random() < 0.03 && gameLogic.availableColumns.length > 0) {
-      gameLogic.spawnNewLetter();
+      // Check if there's actually room for a new letter
+      const hasSpaceForNewLetter = gameLogic.availableColumns.some((col: number) => {
+        return !gameState.fallingLetters.some((fl: any) => fl.col === col && fl.row === 0);
+      });
+      
+      if (hasSpaceForNewLetter) {
+        gameLogic.spawnNewLetter();
+      }
     }
   }, [gameState, gameLogic]);
 

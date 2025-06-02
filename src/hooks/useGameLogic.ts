@@ -44,10 +44,20 @@ export const useGameLogic = (gameState: any, gridRef: React.RefObject<HTMLDivEle
     return getAvailableColumns(gameState.grid);
   }, [gameState.grid]);
   
-  // Memoize grid fullness check
+  // Improved grid fullness check that considers falling letters
   const gridIsFull = useMemo(() => {
-    return isGridFull(gameState.grid);
-  }, [gameState.grid]);
+    const currentGrid = gameState.grid.map((row: any) => [...row]);
+    
+    // Temporarily place falling letters to check true fullness
+    gameState.fallingLetters.forEach((letter: any) => {
+      if (letter.row >= 0 && letter.row < currentGrid.length && 
+          letter.col >= 0 && letter.col < currentGrid[0].length) {
+        currentGrid[letter.row][letter.col] = letter.letter;
+      }
+    });
+    
+    return isGridFull(currentGrid);
+  }, [gameState.grid, gameState.fallingLetters]);
 
   // Calculate max time between words based on level
   const getMaxTimeBetweenWords = useCallback((): number => {
@@ -88,7 +98,7 @@ export const useGameLogic = (gameState: any, gridRef: React.RefObject<HTMLDivEle
     });
   }, [gameState.grid, gameState.setTimeFreeze, gameState.setTimeFreezeTimer, gameState.setGrid, gameState.setPointMultiplier]);
 
-  // Check game over conditions
+  // Improved game over checks
   const checkGridOverflow = useCallback((): boolean => {
     return gridIsFull;
   }, [gridIsFull]);
@@ -123,7 +133,7 @@ export const useGameLogic = (gameState: any, gridRef: React.RefObject<HTMLDivEle
     gameState.setCurrentWord((prev: string) => prev + letter);
   }, [gameState.gameActive, gameState.selectedCells, gameState.setSelectedCells, gameState.setCurrentWord]);
 
-  // Submit word
+  // Submit word with improved state synchronization
   const submitWord = useCallback(() => {
     if (gameState.selectedCells.length < 3) {
       toast({
@@ -179,7 +189,22 @@ export const useGameLogic = (gameState: any, gridRef: React.RefObject<HTMLDivEle
         gameState.setPointMultiplier(1);
       }
       
-      gameState.setGrid((prev: any) => getUpdatedGrid(prev, positions));
+      // Improved grid update with proper synchronization
+      gameState.setGrid((prev: any) => {
+        const updatedGrid = getUpdatedGrid(prev, positions);
+        
+        // Remove any falling letters that were part of the submitted word
+        gameState.setFallingLetters((currentFallingLetters: any) => {
+          return currentFallingLetters.filter((fallingLetter: any) => {
+            return !positions.some(pos => 
+              pos.row === fallingLetter.row && pos.col === fallingLetter.col
+            );
+          });
+        });
+        
+        return updatedGrid;
+      });
+      
       gameState.clearWord();
     } else {
       if (wordBoxRef.current) {

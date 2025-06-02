@@ -131,7 +131,7 @@ export const clearCanLetterFallCache = (): void => {
   }
 };
 
-// Check if a game over should occur due to grid overflow
+// Improved game over detection that considers actual board state
 export const isGridFull = (grid: string[][]): boolean => {
   console.log("### isGridFull check - Examining top row contents:", JSON.stringify(grid[0]));
   
@@ -143,8 +143,20 @@ export const isGridFull = (grid: string[][]): boolean => {
     }
   }
   
-  console.log("### isGridFull: TOP ROW IS COMPLETELY FULL - GAME OVER!");
-  return true; // Top row is completely full
+  console.log("### isGridFull: TOP ROW IS COMPLETELY FULL - checking if any movement possible");
+  
+  // Additional check: even if top row is full, verify no letters can move down
+  for (let row = 0; row < grid.length - 1; row++) {
+    for (let col = 0; col < grid[0].length; col++) {
+      if (grid[row][col] !== null && grid[row + 1][col] === null) {
+        console.log("### isGridFull: Found moveable letter at", row, col);
+        return false; // Letters can still move down
+      }
+    }
+  }
+  
+  console.log("### isGridFull: CONFIRMED GAME OVER - no movement possible");
+  return true; // Top row is completely full and no movement possible
 };
 
 // Get all available columns for spawning new letters (columns with null in top row)
