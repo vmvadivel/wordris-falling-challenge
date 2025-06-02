@@ -27,17 +27,24 @@ export const getCellsToUpdate = (grid: string[][], selectedPositions: Position[]
   return cellsToUpdate;
 };
 
-// Update the grid after removing selected cells
+// Update the grid after removing selected cells with improved validation
 export const getUpdatedGrid = (
   grid: string[][], 
   selectedPositions: Position[]
 ): string[][] => {
+  if (!grid || !selectedPositions || selectedPositions.length === 0) {
+    return grid;
+  }
+
   const newGrid = grid.map(row => [...row]);
   const selectedPosSet = new Set(selectedPositions.map(p => `${p.row},${p.col}`));
   
-  // First mark selected positions as null
+  // First mark selected positions as null with bounds checking
   selectedPositions.forEach(pos => {
-    newGrid[pos.row][pos.col] = null;
+    if (pos.row >= 0 && pos.row < newGrid.length && 
+        pos.col >= 0 && pos.col < newGrid[0].length) {
+      newGrid[pos.row][pos.col] = null;
+    }
   });
   
   // For each column, shift cells down
@@ -76,7 +83,7 @@ interface CanLetterFallFunction {
 }
 
 // Determine if a letter can move down, dealing with proper stacking
-// Now with efficient caching within the function itself
+// Now with more efficient caching and validation
 export const canLetterFall: CanLetterFallFunction = (
   grid: string[][], 
   row: number, 
@@ -84,11 +91,15 @@ export const canLetterFall: CanLetterFallFunction = (
   fallingLetters: { row: number; col: number; id: string }[],
   currentLetterId: string
 ): boolean => {
+  // Enhanced bounds checking
+  if (!grid || row < 0 || col < 0 || row >= grid.length - 1 || col >= grid[0].length) {
+    return false;
+  }
+
   // Create a cache key for the current call
   const cacheKey = `${row},${col},${currentLetterId}`;
   
-  // Check if we've already computed this result in our current function call's context
-  // This uses a function closure for caching rather than React's useMemo
+  // Check if we've already computed this result
   if (!canLetterFall.cache) {
     canLetterFall.cache = new Map();
   }
@@ -97,16 +108,10 @@ export const canLetterFall: CanLetterFallFunction = (
     return canLetterFall.cache.get(cacheKey) as boolean;
   }
   
-  // Check grid bounds
-  if (row >= grid.length - 1) {
-    canLetterFall.cache.set(cacheKey, false);
-    return false; // At bottom of grid
-  }
-  
   // Check if cell below is empty on the grid
   if (grid[row + 1][col] !== null) {
     canLetterFall.cache.set(cacheKey, false);
-    return false; // Cell below is occupied on the grid
+    return false;
   }
   
   // Check for other falling letters in the position below
@@ -114,53 +119,53 @@ export const canLetterFall: CanLetterFallFunction = (
   
   if (!letterBelow) {
     canLetterFall.cache.set(cacheKey, true);
-    return true; // No letter below, free to fall
+    return true;
   }
   
   // If there's a letter below, check if it's also going to fall this frame
-  // This prevents letters from getting stuck because they see another falling letter below
   const result = canLetterFall(grid, row + 1, col, fallingLetters.filter(l => l.id !== letterBelow.id), currentLetterId);
   canLetterFall.cache.set(cacheKey, result);
   return result;
 };
 
-// Clear the cache for canLetterFall - should be called at the start of each game loop cycle
+// Clear the cache for canLetterFall - optimized to prevent memory leaks
 export const clearCanLetterFallCache = (): void => {
   if (canLetterFall.cache) {
     canLetterFall.cache.clear();
   }
 };
 
-// Improved game over detection that considers actual board state
+// Improved game over detection with enhanced validation
 export const isGridFull = (grid: string[][]): boolean => {
-  console.log("### isGridFull check - Examining top row contents:", JSON.stringify(grid[0]));
-  
+  if (!grid || grid.length === 0 || grid[0].length === 0) {
+    return false;
+  }
+
   // Game is over when the entire top row has content (no null cells)
   for (let col = 0; col < grid[0].length; col++) {
     if (grid[0][col] === null) {
-      console.log("### isGridFull: Found empty cell at column", col);
       return false; // Found an empty space in top row
     }
   }
   
-  console.log("### isGridFull: TOP ROW IS COMPLETELY FULL - checking if any movement possible");
-  
-  // Additional check: even if top row is full, verify no letters can move down
+  // Additional validation: check if any movement is possible
   for (let row = 0; row < grid.length - 1; row++) {
     for (let col = 0; col < grid[0].length; col++) {
       if (grid[row][col] !== null && grid[row + 1][col] === null) {
-        console.log("### isGridFull: Found moveable letter at", row, col);
         return false; // Letters can still move down
       }
     }
   }
   
-  console.log("### isGridFull: CONFIRMED GAME OVER - no movement possible");
   return true; // Top row is completely full and no movement possible
 };
 
-// Get all available columns for spawning new letters (columns with null in top row)
+// Get all available columns for spawning new letters with enhanced validation
 export const getAvailableColumns = (grid: string[][]): number[] => {
+  if (!grid || grid.length === 0 || grid[0].length === 0) {
+    return [];
+  }
+
   const available = [];
   for (let col = 0; col < grid[0].length; col++) {
     if (grid[0][col] === null) {

@@ -33,33 +33,36 @@ export const useWordrisGameLoop = (gameState: any, gameLogic: any) => {
           }
         });
 
-        // Handle landed letters with improved game over detection
+        // Handle landed letters with improved synchronization
         if (landedLetters.length > 0) {
+          // Update grid with landed letters in a single operation
           gameState.setGrid((oldGrid: any) => {
             const newGrid = oldGrid.map((row: any) => [...row]);
             landedLetters.forEach((l: any) => {
-              newGrid[l.row][l.col] = l.letter;
+              if (l.row >= 0 && l.row < newGrid.length && l.col >= 0 && l.col < newGrid[0].length) {
+                newGrid[l.row][l.col] = l.letter;
+              }
             });
 
-            // Improved game over check - ensure we actually can't place new letters
+            // Improved game over detection with better state checking
+            const hasActiveMovement = updatedLetters.length > 0;
             const canPlaceNewLetters = newGrid[0].some((cell: any) => cell === null);
-            const hasRoomForFalling = updatedLetters.length < 3 && canPlaceNewLetters;
             
-            if (isGridFull(newGrid) && !hasRoomForFalling) {
-              // Double-check by verifying no movement is possible
-              let canAnyLetterMove = false;
-              for (let row = 0; row < newGrid.length - 1; row++) {
-                for (let col = 0; col < newGrid[0].length; col++) {
+            // Only check for game over if grid is actually full and no movement possible
+            if (isGridFull(newGrid) && !hasActiveMovement && !canPlaceNewLetters) {
+              // Final verification: check if any letters can actually move
+              let hasMovableLetter = false;
+              for (let row = 0; row < newGrid.length - 1 && !hasMovableLetter; row++) {
+                for (let col = 0; col < newGrid[0].length && !hasMovableLetter; col++) {
                   if (newGrid[row][col] !== null && newGrid[row + 1][col] === null) {
-                    canAnyLetterMove = true;
-                    break;
+                    hasMovableLetter = true;
                   }
                 }
-                if (canAnyLetterMove) break;
               }
               
-              if (!canAnyLetterMove && isGridFull(newGrid)) {
-                gameState.endGame();
+              if (!hasMovableLetter) {
+                // Use setTimeout to prevent state update conflicts
+                setTimeout(() => gameState.endGame(), 0);
               }
             }
 
@@ -67,7 +70,7 @@ export const useWordrisGameLoop = (gameState: any, gameLogic: any) => {
           });
         }
 
-        // Update selected cells positions for falling letters
+        // Update selected cells positions for falling letters with better synchronization
         if (updatedLetters.length > 0) {
           gameState.setSelectedCells((prevSelectedCells: any) => {
             return prevSelectedCells.map((selectedCell: any) => {
@@ -93,11 +96,15 @@ export const useWordrisGameLoop = (gameState: any, gameLogic: any) => {
       });
     }
 
-    // Improved spawning logic with better collision detection
+    // Improved spawning logic with better collision detection and state validation
     if (gameState.fallingLetters.length < 3 && Math.random() < 0.03 && gameLogic.availableColumns.length > 0) {
-      // Check if there's actually room for a new letter
+      // Enhanced space checking that considers current falling letters
       const hasSpaceForNewLetter = gameLogic.availableColumns.some((col: number) => {
-        return !gameState.fallingLetters.some((fl: any) => fl.col === col && fl.row === 0);
+        const hasExistingFallingLetter = gameState.fallingLetters.some((fl: any) => 
+          fl.col === col && fl.row === 0
+        );
+        const hasGridLetter = gameState.grid[0][col] !== null;
+        return !hasExistingFallingLetter && !hasGridLetter;
       });
       
       if (hasSpaceForNewLetter) {

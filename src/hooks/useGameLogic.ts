@@ -133,7 +133,7 @@ export const useGameLogic = (gameState: any, gridRef: React.RefObject<HTMLDivEle
     gameState.setCurrentWord((prev: string) => prev + letter);
   }, [gameState.gameActive, gameState.selectedCells, gameState.setSelectedCells, gameState.setCurrentWord]);
 
-  // Submit word with improved state synchronization
+  // Submit word with properly synchronized state updates
   const submitWord = useCallback(() => {
     if (gameState.selectedCells.length < 3) {
       toast({
@@ -189,21 +189,40 @@ export const useGameLogic = (gameState: any, gridRef: React.RefObject<HTMLDivEle
         gameState.setPointMultiplier(1);
       }
       
-      // Improved grid update with proper synchronization
-      gameState.setGrid((prev: any) => {
-        const updatedGrid = getUpdatedGrid(prev, positions);
-        
-        // Remove any falling letters that were part of the submitted word
-        gameState.setFallingLetters((currentFallingLetters: any) => {
-          return currentFallingLetters.filter((fallingLetter: any) => {
-            return !positions.some(pos => 
-              pos.row === fallingLetter.row && pos.col === fallingLetter.col
-            );
-          });
-        });
-        
-        return updatedGrid;
+      // FIXED: Properly synchronize falling letter removal and grid updates
+      // First, identify which letters are falling vs on grid
+      const fallingLetterPositions = new Set();
+      const fallingLettersToRemove: string[] = [];
+      
+      positions.forEach(pos => {
+        const fallingLetter = gameState.fallingLetters.find((fl: any) => 
+          fl.row === pos.row && fl.col === pos.col
+        );
+        if (fallingLetter) {
+          fallingLetterPositions.add(`${pos.row},${pos.col}`);
+          fallingLettersToRemove.push(fallingLetter.id);
+        }
       });
+
+      // Remove falling letters first (synchronously)
+      if (fallingLettersToRemove.length > 0) {
+        gameState.setFallingLetters((currentFallingLetters: any) => {
+          return currentFallingLetters.filter((fallingLetter: any) => 
+            !fallingLettersToRemove.includes(fallingLetter.id)
+          );
+        });
+      }
+
+      // Then update the grid with remaining positions
+      gameState.setGrid((prev: any) => {
+        const gridPositions = positions.filter(pos => 
+          !fallingLetterPositions.has(`${pos.row},${pos.col}`)
+        );
+        return getUpdatedGrid(prev, gridPositions);
+      });
+      
+      // Clear cache after all updates
+      clearCanLetterFallCache();
       
       gameState.clearWord();
     } else {
